@@ -4,7 +4,7 @@ Add to config
     'urlManager' => [
         'rules' => [
             ....
-            '<module:cowsGame>/<action:\w+>' => '<module>/default/<action>',
+            '<module:cowsGame>/<action:\w++(-\w+)*>' => '<module>/default/<action>',
         ],
     ],
 

@@ -28,25 +28,24 @@ AppAsset::register($this);
 <div class="wrap">
     <?php
     NavBar::begin([
-        'brandLabel' => 'My Company',
+        'brandLabel' => Yii::$app->name,
         'brandUrl' => Yii::$app->homeUrl,
         'options' => [
             'class' => 'navbar-inverse navbar-fixed-top',
         ],
     ]);
     $menuItems = [
-        ['label' => 'Home', 'url' => ['/site/index']],
-        ['label' => 'About', 'url' => ['/site/about']],
-        ['label' => 'Contact', 'url' => ['/site/contact']],
+        //['label' => 'About', 'url' => ['/site/about']],
+        //['label' => 'Contact', 'url' => ['/site/contact']],
     ];
     if (Yii::$app->user->isGuest) {
-        $menuItems[] = ['label' => 'Signup', 'url' => ['/site/signup']];
-        $menuItems[] = ['label' => 'Login', 'url' => ['/site/login']];
+        $menuItems[] = ['label' => 'Регистрация', 'url' => ['/site/signup']];
+        $menuItems[] = ['label' => 'Вход', 'url' => ['/site/login']];
     } else {
         $menuItems[] = '<li>'
             . Html::beginForm(['/site/logout'], 'post')
             . Html::submitButton(
-                'Logout (' . Yii::$app->user->identity->username . ')',
+                'Выход (' . Yii::$app->user->identity->username . ')',
                 ['class' => 'btn btn-link']
             )
             . Html::endForm()
@@ -66,13 +65,17 @@ AppAsset::register($this);
         <?= Alert::widget() ?>
         <?= $content ?>
     </div>
+    <div style="text-align: center">
+        <a href="http://zdravoeshka.ru/" target="_blank"><img src="/images/zdravoeshka.png" alt="Здраавоешка" class="img-responsive" style="margin: auto"/></a>
+    </div>
+
 </div>
 
 <footer class="footer">
     <div class="container">
         <p class="pull-left">&copy; My Company <?= date('Y') ?></p>
 
-        <p class="pull-right"><?= Yii::powered() ?></p>
+        <p class="pull-right"><p class="pull-right"><?php echo $this->render('statistics')?></p></p>
     </div>
 </footer>
 

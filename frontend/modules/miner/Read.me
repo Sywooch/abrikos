@@ -4,7 +4,7 @@ Add to config
     'urlManager' => [
         'rules' => [
             ....
-            '<module:miner>/<action:\w+>' => '<module>/default/<action>',
+            '<module:miner>/<action:\w+(-\w+)*>' => '<module>/default/<action>',
         ],
     ],
 

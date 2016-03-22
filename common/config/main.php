@@ -1,6 +1,8 @@
 <?php
 return [
 	'vendorPath' => dirname(dirname(__DIR__)) . '/vendor',
+	'language'=>'ru_RU',
+	'name' => 'Абрикосизм',
 	'components' => [
 		'cache' => [
 			'class' => 'yii\caching\FileCache',
@@ -12,7 +14,8 @@ return [
 			'enablePrettyUrl' => true,
 			'showScriptName' => false,
 			'rules' => [
-				'<module:\w+>/<action:\w+(-\w+)*>' => '<module>/default/<action>',
+				'<module:cows>/<action:\w+(-\w+)*>' => '<module>/default/<action>',
+				'<module:miner>/<action:\w+(-\w+)*>' => '<module>/default/<action>',
 				'<controller:\w+>/<view:\w+>/<id:\d+>' => '<controller>/<view>',
 				'<controller:\w+>/<id:\d+>' => '<controller>/view',
 				'ykt'=>'/site/30sec'
