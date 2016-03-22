@@ -1,0 +1,1492 @@
+Index: frontend/controllers/UserController.php
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- frontend/controllers/UserController.php	(revision )
++++ frontend/controllers/UserController.php	(revision )
+@@ -0,0 +1,118 @@
++<?php
++
++namespace frontend\controllers;
++
++use common\models\Openid;
++use common\models\Ulogin;
++use common\models\User;
++use Yii;
++use yii\helpers\Json;
++use yii\web\HttpException;
++use yii\filters\VerbFilter;
++use yii\filters\AccessControl;
++use yii\web\YiiAsset;
++
++class UserController extends \yii\web\Controller
++{
++	public function behaviors()
++	{
++		return [
++			'access' => [
++				'class' => AccessControl::className(),
++				'rules' => [
++					[
++						'actions' => ['ulogin-add', ],
++						'allow' => true,
++					],
++					[
++						//'actions' => ['cabinet', ],
++						'allow' => true,
++						'roles' => ['admin'],
++					],
++					[
++						'actions' => ['cabinet', 'ulogin-list', 'ulogin-delete', 'password-change', 'email-change'],
++						'allow' => true,
++						'roles' => ['user'],
++					],
++
++
++				],
++			],
++
++			'verbs' => [
++				'class' => VerbFilter::className(),
++				'actions' => [
++					'delete' => ['post'],
++				],
++			],
++		];
++	}
++
++	public function actionCabinet()
++	{
++		return $this->render('cabinet');
++	}
++
++	public function actionUloginDelete($id){
++		Ulogin::findOne(['id'=>$id, 'user'=>\Yii::$app->user->id])->delete();
++	}
++
++	public function actionPasswordChange(){
++		$password = \Yii::$app->request->post('password');
++		$user = User::findOne(\Yii::$app->user->id);
++		if(!$user->validatePassword($password['old'])){
++			return 'Не верный старый пароль';
++		}
++		if(!$password['new']){
++			return 'Новый пароль не может быть пустым';
++		}
++
++		if($password['new']!=$password['new2']){
++			return 'Новый пароль и подтверждение должны совпадать';
++		}
++		$user->setPassword($password['new']);
++		$user->save();
++		return 1;
++	}
++
++	public function actionEmailChange(){
++		return;
++		$errors = [];
++		$user = User::findOne(\Yii::$app->user->id);
++		$user->email = Yii::$app->request->post('email');
++		if(!$user->save(true,['email'])) $errors = $user->errors;
++		return Json::encode(['error'=>$errors]);
++	}
++
++
++	public function actionUloginAdd()
++	{
++		$s = file_get_contents('http://ulogin.ru/token.php?token=' . $_POST['token'] . '&host=' . $_SERVER['HTTP_HOST']);
++		$user = json_decode($s, true);
++		//$user['network'] - соц. сеть, через которую авторизовался пользователь
++		//$user['identity'] - уникальная строка определяющая конкретного пользователя соц. сети
++		//$user['first_name'] - имя пользователя
++		//$user['last_name'] - фамилия пользователя
++		//print_r($user);exit;
++		if(!$user['uid']){throw new HttpException(500,'Не найден UID');}
++		$openid = Ulogin::findOne(['email'=>$user['uid'], 'network'=>$user['network']]);
++		print_r($openid);
++		if(!isset($openid))
++		{
++			$oi = new Ulogin();
++			$oi->user = \Yii::$app->user->id;
++			$oi->uid = $user['uid'];
++			$oi->network = $user['network'];
++			$oi->identity = $user['identity'];
++			$oi->email = $user['email'];
++			$oi->save();
++		}else {
++			throw new HttpException(500, 'Этот аккаунт уже связан с другим пользователем');
++		}
++	}
++
++	public function actionUloginList(){
++		return Json::encode(Ulogin::findAll(['user'=>\Yii::$app->user->id]));
++	}
++
++}
+Index: common/models/Ulogin.php
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- common/models/Ulogin.php	(revision )
++++ common/models/Ulogin.php	(revision )
+@@ -0,0 +1,62 @@
++<?php
++
++namespace common\models;
++
++use Yii;
++
++/**
++ * This is the model class for table "ulogin".
++ *
++ * @property integer $user
++ * @property string $uid
++ * @property string $network
++ * @property string $identity
++ * @property integer $id
++ *
++ * @property User $user0
++ */
++class Ulogin extends \yii\db\ActiveRecord
++{
++    /**
++     * @inheritdoc
++     */
++    public static function tableName()
++    {
++        return 'ulogin';
++    }
++
++    /**
++     * @inheritdoc
++     */
++    public function rules()
++    {
++        return [
++            [['user', 'uid', 'network', 'identity', 'email'], 'required'],
++            [['user'], 'integer'],
++            [['uid', 'identity'], 'string', 'max' => 255],
++            [['network'], 'string', 'max' => 100]
++        ];
++    }
++
++    /**
++     * @inheritdoc
++     */
++    public function attributeLabels()
++    {
++        return [
++            'user' => 'User',
++            'uid' => 'Openid',
++            'network' => 'Network',
++            'identity' => 'Identity',
++            'id' => 'ID',
++        ];
++    }
++
++    /**
++     * @return \yii\db\ActiveQuery
++     */
++    public function getUser0()
++    {
++        return $this->hasOne(User::className(), ['id' => 'user']);
++    }
++}
+Index: frontend/views/user/ulogin.php
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- frontend/views/user/ulogin.php	(revision )
++++ frontend/views/user/ulogin.php	(revision )
+@@ -0,0 +1,28 @@
++<h3>Интеграция с социальными сетями</h3>
++<table class="table">
++	<tr><th>Network</th><th>Identity</th><th>Email</th></tr>
++	<tbody id="ulogin-list"></tbody>
++</table>
++
++
++<script src="//ulogin.ru/js/ulogin.js"></script><div id="uLogin_10207705" data-uloginid="10207705"></div>
++<script>
++	$(function(){drawUlogin()})
++
++	function drawUlogin(){
++		$.getJSON('/user/ulogin-list', null,function(json){
++			$('#ulogin-list').html('');
++			$.each(json,function(i,item){
++				$('#ulogin-list').append('<tr id="ulogin-'+item.id+'"><td>'+item.network+'</td><td>'+item.identity+'</td><td>'+item.email+'</td><td><a href="javascript:void(0)" onclick="uloginDel('+item.id+')"><span class="glyphicon glyphicon-trash">&nbsp;</span></a></td></tr>');
++			})
++		})
++	}
++
++	function uloginDo(){
++		$.post('/user/ulogin-add',{token:arguments[0],_csrf:$('meta[name="csrf-token"]').attr("content")},function(json) { drawUlogin() });
++	}
++
++	function uloginDel(id){
++		$.get('/user/ulogin-delete/',{id:id},function(json){ $('#ulogin-'+id).fadeOut(); })
++	}
++</script>
+\ No newline at end of file
+Index: frontend/views/user/email.php
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- frontend/views/user/email.php	(revision )
++++ frontend/views/user/email.php	(revision )
+@@ -0,0 +1,26 @@
++<h3>Адрес e-mail</h3>
++<form onsubmit="return changeEmail(this)">
++	<input value="<?=Yii::$app->user->identity->email;?>" name="email" />
++	<input type="submit" value="Изменить e-mail">
++</form>
++<div id="email-success" class="alert alert-success collapse"></div>
++<div id="email-error" class="alert alert-danger collapse"></div>
++<script>
++	function changeEmail(form){
++		console.log($(form).serialize());
++		$.ajax({
++			url:'/user/email-change',
++			data:$(form).serialize(),
++			type:'post',
++			dataType:'json',
++			success:function(json){
++				$('#email-error').html('').hide();
++				$('#email-success').html('E-mail изменен').show();
++				$.each(json.error,function(field,msg){
++					$('#email-success').hide();
++					$('#email-error').append(msg).show();
++				})
++		}})
++		return false;
++	}
++</script>
+Index: frontend/views/user/messages.php
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- frontend/views/user/messages.php	(revision )
++++ frontend/views/user/messages.php	(revision )
+@@ -0,0 +1,16 @@
++<?php
++$dataProvider = new \yii\data\ActiveDataProvider([
++	'query' => \common\models\Message::find()->where(['user'=>Yii::$app->user->id]),
++	'pagination' => [
++		'pageSize' => 5,
++	],
++]);
++
++\yii\widgets\Pjax::begin();
++echo \yii\widgets\ListView::widget([
++	'dataProvider' => $dataProvider,
++	'itemOptions' => ['class' => 'item'],
++	'itemView' => '/message/_view',
++	//'pager' => ['class' => \kop\y2sp\ScrollPager::className()]
++]);
++\yii\widgets\Pjax::end();
+Index: frontend/views/user/cabinet.php
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- frontend/views/user/cabinet.php	(revision )
++++ frontend/views/user/cabinet.php	(revision )
+@@ -0,0 +1,39 @@
++<?php
++use yii\bootstrap\Tabs;
++
++//Yii::$app->user->identity->last_name = 'zzzz';
++//Yii::$app->user->identity->save();
++
++$this->title = 'Кабинет пользователя ' ;
++$this->params['breadcrumbs'][] = $this->title;
++?>
++<?php
++echo Tabs::widget([
++	'items' => [
++		[
++			'label' => 'Мои объявления',
++			'content' => $this->render('messages'),
++			'active' => true
++		],
++        [
++	        'label' => 'Профиль',
++	        'content' => $this->render('profile'),
++        ],
++        /*
++		[
++	        'label' => 'Dropdown',
++	        'items' => [
++		        [
++			        'label' => 'DropdownA',
++			        'content' => 'DropdownA, Anim pariatur cliche...',
++		        ],
++		        [
++			        'label' => 'DropdownB',
++			        'content' => 'DropdownB, Anim pariatur cliche...',
++		        ],
++	        ],
++        ],
++        */
++    ],
++]);
++?>
+Index: frontend/views/user/profile.php
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- frontend/views/user/profile.php	(revision )
++++ frontend/views/user/profile.php	(revision )
+@@ -0,0 +1,4 @@
++
++<?=$this->render('ulogin')?>
++
++<?=$this->render('password')?>
+Index: frontend/views/user/password.php
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- frontend/views/user/password.php	(revision )
++++ frontend/views/user/password.php	(revision )
+@@ -0,0 +1,33 @@
++<h3>Смена пароля</h3>
++<form onsubmit="passwordChange(this); return false" class="form-inline">
++	Старый пароль <input name="password[old]" type="password">  <br/>
++	Новый пароль<input name="password[new]" type="password">    <br/>
++	Подтверждение <input name="password[new2]" type="password">      <br/>
++	<input type="submit" value="Сменить пароль">
++</form>
++
++<script>
++	function passwordChange(form){
++		obj = $(form);
++		data = obj.serialize();
++		alert = $('#password-alert');
++		alert.attr('class','alert');
++		alert.hide();
++		obj.children('[type=password]').val('')
++		$.post('/user/password-change',data,function(data){
++
++			if(data=='1'){
++				alert.html('Пароль изменен');
++				alert.addClass('alert-success');
++				alert.fadeIn();
++			}else{
++				alert.html('Ошибка: '+ data);
++				alert.addClass('alert-danger');
++				alert.fadeIn();
++			}
++		})
++		return false;
++	}
++</script>
++<div id="password-alert" class="alert collapse"></div>
++<a href="/site/request-password-reset">Восстановить забытый пароль</a>
+\ No newline at end of file
+Index: frontend/views/site/login.php
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- frontend/views/site/login.php	(date 1458623092000)
++++ frontend/views/site/login.php	(revision )
+@@ -1,39 +1,46 @@
+ <?php
++use yii\helpers\Html;
++use yii\bootstrap\ActiveForm;
++use rmrevin\yii\ulogin\ULogin;
+ 
+ /* @var $this yii\web\View */
+ /* @var $form yii\bootstrap\ActiveForm */
+ /* @var $model \common\models\LoginForm */
+ 
+-use yii\helpers\Html;
+-use yii\bootstrap\ActiveForm;
+-
+-$this->title = 'Login';
++$this->title = 'Вход';
+ $this->params['breadcrumbs'][] = $this->title;
+ ?>
+ <div class="site-login">
+-    <h1><?= Html::encode($this->title) ?></h1>
++			<h1><?= Html::encode($this->title) ?></h1>
+-
+-    <p>Please fill out the following fields to login:</p>
+-
+-    <div class="row">
+-        <div class="col-lg-5">
+-            <?php $form = ActiveForm::begin(['id' => 'login-form']); ?>
++			<?php $form = ActiveForm::begin(['id' => 'login-form']); ?>
+-
+-                <?= $form->field($model, 'username')->textInput(['autofocus' => true]) ?>
+-
++			<?= $form->field($model, 'username') ?>
+-                <?= $form->field($model, 'password')->passwordInput() ?>
++			<?= $form->field($model, 'password')->passwordInput() ?>
+-
+-                <?= $form->field($model, 'rememberMe')->checkbox() ?>
++			<?= $form->field($model, 'rememberMe')->checkbox() ?>
+-
+-                <div style="color:#999;margin:1em 0">
++			<div style="color:#999;margin:1em 0">
+-                    If you forgot your password you can <?= Html::a('reset it', ['site/request-password-reset']) ?>.
++				Если Вы забыли пароль попробуйте его <?= Html::a('восстановить', ['site/request-password-reset']) ?>.
+-                </div>
++			</div>
+ 
+-                <div class="form-group">
++			<div class="form-group">
+-                    <?= Html::submitButton('Login', ['class' => 'btn btn-primary', 'name' => 'login-button']) ?>
++				<?= Html::submitButton('Войти', ['class' => 'btn btn-primary', 'name' => 'login-button']) ?>
+-                </div>
++			</div>
+ 
+-            <?php ActiveForm::end(); ?>
++			<?php ActiveForm::end(); ?>
++			<script src="//ulogin.ru/js/ulogin.js"></script>
++	<div id="uLogin_10207705" data-uloginid="10207705"  data-ulogin="display=panel;fields=first_name,last_name,email,nickname,photo;lang=ru;providers=facebook,google,vkontakte,yandex,twitter,mailru;hidden=odnoklassniki,livejournal,openid,lastfm,linkedin,liveid,soundcloud,steam,flickr,uid,youtube,webmoney,foursquare,tumblr,googleplus,dudu,vimeo,instagram,wargaming;callback_hidden=uloginDo"></div>
++	<script>
++
++		function uloginDo(){
++			console.log(arguments);
++			$.ajax({
++				url:'/site/ulogin',
++				data:{token:arguments[0],_csrf:$('meta[name="csrf-token"]').attr("content")},
++				type:'post',
++				dataType:'json',
++				success:function(json){
++					document.location.href=json.redirect;
++				}
++			})
++		}
++	</script>
+-        </div>
++</div>
+-    </div>
+-</div>
++
+Index: frontend/views/site/resetPassword.php
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- frontend/views/site/resetPassword.php	(date 1458623092000)
++++ frontend/views/site/resetPassword.php	(revision )
+@@ -1,30 +1,26 @@
+ <?php
++use yii\helpers\Html;
++use yii\bootstrap\ActiveForm;
+ 
+ /* @var $this yii\web\View */
+ /* @var $form yii\bootstrap\ActiveForm */
+ /* @var $model \frontend\models\ResetPasswordForm */
+ 
+-use yii\helpers\Html;
+-use yii\bootstrap\ActiveForm;
+-
+-$this->title = 'Reset password';
++$this->title = 'Новый пароль';
+ $this->params['breadcrumbs'][] = $this->title;
+ ?>
+ <div class="site-reset-password">
+     <h1><?= Html::encode($this->title) ?></h1>
+ 
+-    <p>Please choose your new password:</p>
++    <p>Укажите новый пароль:</p>
+ 
+     <div class="row">
+         <div class="col-lg-5">
+             <?php $form = ActiveForm::begin(['id' => 'reset-password-form']); ?>
+-
+-                <?= $form->field($model, 'password')->passwordInput(['autofocus' => true]) ?>
+-
++                <?= $form->field($model, 'password')->passwordInput() ?>
+                 <div class="form-group">
+                     <?= Html::submitButton('Save', ['class' => 'btn btn-primary']) ?>
+                 </div>
+-
+             <?php ActiveForm::end(); ?>
+         </div>
+     </div>
+Index: frontend/views/site/signup.php
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- frontend/views/site/signup.php	(date 1458623092000)
++++ frontend/views/site/signup.php	(revision )
+@@ -1,35 +1,47 @@
+ <?php
++use yii\helpers\Html;
++use yii\bootstrap\ActiveForm;
+ 
+ /* @var $this yii\web\View */
+ /* @var $form yii\bootstrap\ActiveForm */
+ /* @var $model \frontend\models\SignupForm */
+ 
+-use yii\helpers\Html;
+-use yii\bootstrap\ActiveForm;
+-
+-$this->title = 'Signup';
++$this->title = 'Регистрация';
+ $this->params['breadcrumbs'][] = $this->title;
+ ?>
+ <div class="site-signup">
+     <h1><?= Html::encode($this->title) ?></h1>
+ 
+-    <p>Please fill out the following fields to signup:</p>
++    <p>Пожалуйста заполните следующие поля для регистрации:</p>
+ 
+     <div class="row">
+         <div class="col-lg-5">
+             <?php $form = ActiveForm::begin(['id' => 'form-signup']); ?>
+-
+-                <?= $form->field($model, 'username')->textInput(['autofocus' => true]) ?>
+-
++                <?= isset($session['openid']) ? $form->field($model, 'username',['options'=>['class'=>'collapse']])->hiddenInput() : $form->field($model, 'username') ?>
+                 <?= $form->field($model, 'email') ?>
+-
+                 <?= $form->field($model, 'password')->passwordInput() ?>
+-
+                 <div class="form-group">
+-                    <?= Html::submitButton('Signup', ['class' => 'btn btn-primary', 'name' => 'signup-button']) ?>
++                    <?= Html::submitButton('Зарегистрироваться', ['class' => 'btn btn-primary', 'name' => 'signup-button']) ?>
+                 </div>
+-
+             <?php ActiveForm::end(); ?>
+         </div>
+     </div>
+ </div>
++Зарегистрируйтесь с помощью социальных сетей и вам не понадобится придумывать и запоминать пароль:
++<script src="//ulogin.ru/js/ulogin.js"></script>
++<div id="uLogin_10207705" data-uloginid="10207705"  data-ulogin="display=panel;fields=first_name,last_name,email,nickname,photo;lang=ru;providers=facebook,google,vkontakte,yandex,twitter,mailru;hidden=odnoklassniki,livejournal,openid,lastfm,linkedin,liveid,soundcloud,steam,flickr,uid,youtube,webmoney,foursquare,tumblr,googleplus,dudu,vimeo,instagram,wargaming;callback_hidden=uloginDo"></div>
++
++<script>
++
++	function uloginDo(){
++		$.ajax({
++			url:'/site/ulogin',
++			data:{token:arguments[0],_csrf:$('meta[name="csrf-token"]').attr("content")},
++			type:'post',
++			dataType:'json',
++			success:function(json){
++				document.location.href=json.redirect;
++			}
++		})
++	}
++</script>
+\ No newline at end of file
+Index: backend/controllers/SiteController.php
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- backend/controllers/SiteController.php	(date 1458623092000)
++++ backend/controllers/SiteController.php	(revision )
+@@ -12,72 +12,80 @@
+  */
+ class SiteController extends Controller
+ {
+-    /**
+-     * @inheritdoc
+-     */
+-    public function behaviors()
+-    {
+-        return [
+-            'access' => [
+-                'class' => AccessControl::className(),
+-                'rules' => [
+-                    [
++	/**
++	 * @inheritdoc
++	 */
++	public function behaviors()
++	{
++		return [
++			'access' => [
++				'class' => AccessControl::className(),
++				'rules' => [
++					[
+-                        'actions' => ['login', 'error'],
++						'actions' => ['login', 'error', 'ulogin'],
+-                        'allow' => true,
+-                    ],
+-                    [
+-                        'actions' => ['logout', 'index'],
+-                        'allow' => true,
+-                        'roles' => ['@'],
+-                    ],
+-                ],
+-            ],
+-            'verbs' => [
+-                'class' => VerbFilter::className(),
+-                'actions' => [
+-                    'logout' => ['post'],
+-                ],
+-            ],
+-        ];
+-    }
++						'allow' => true,
++					],
++					[
++						'actions' => ['logout', 'index'],
++						'allow' => true,
++						'roles' => ['@'],
++					],
++				],
++			],
++			'verbs' => [
++				'class' => VerbFilter::className(),
++				'actions' => [
++					'logout' => ['post'],
++				],
++			],
++		];
++	}
+ 
+-    /**
+-     * @inheritdoc
+-     */
+-    public function actions()
+-    {
+-        return [
+-            'error' => [
+-                'class' => 'yii\web\ErrorAction',
+-            ],
+-        ];
+-    }
++	/**
++	 * @inheritdoc
++	 */
++	public function actions()
++	{
++		return [
++			'error' => [
++				'class' => 'yii\web\ErrorAction',
++			],
++		];
++	}
+ 
+-    public function actionIndex()
+-    {
+-        return $this->render('index');
+-    }
++	public function actionIndex()
++	{
++		return $this->render('index');
++	}
+ 
+-    public function actionLogin()
+-    {
+-        if (!\Yii::$app->user->isGuest) {
+-            return $this->goHome();
+-        }
++	public function actionLogin()
++	{
++		if (!\Yii::$app->user->isGuest) {
++			return $this->goHome();
++		}
+ 
+-        $model = new LoginForm();
+-        if ($model->load(Yii::$app->request->post()) && $model->login()) {
+-            return $this->goBack();
+-        } else {
++		$model = new LoginForm();
++		if ($model->load(Yii::$app->request->post()) && $model->login()) {
++			return $this->goBack();
++		} else {
+-            return $this->render('login', [
++			return $this->render('@app/../frontend/views/site/login', [
+-                'model' => $model,
++				'model' => $model,
++				'show' => 1
+-            ]);
+-        }
+-    }
++			]);
++		}
++	}
++
++	public function actionUlogin(){
++		//$r =10;
++		$r = \frontend\controllers\SiteController::actionUlogin();
++		return  $r;
++	}
++
+ 
+-    public function actionLogout()
+-    {
+-        Yii::$app->user->logout();
++	public function actionLogout()
++	{
++		Yii::$app->user->logout();
+ 
+-        return $this->goHome();
+-    }
++		return $this->goHome();
++	}
+ }
+Index: common/models/LoginForm.php
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- common/models/LoginForm.php	(date 1458623092000)
++++ common/models/LoginForm.php	(revision )
+@@ -13,7 +13,7 @@
+     public $password;
+     public $rememberMe = true;
+ 
+-    private $_user;
++    private $_user = false;
+ 
+ 
+     /**
+@@ -56,7 +56,7 @@
+     public function login()
+     {
+         if ($this->validate()) {
+-            return Yii::$app->user->login($this->getUser(), $this->rememberMe ? 3600 * 24 * 30 : 0);
++            return Yii::$app->user->login($this->getUser(), $this->rememberMe ? Yii::$app->params['remeberMe.Time'] : 0);
+         } else {
+             return false;
+         }
+@@ -67,12 +67,22 @@
+      *
+      * @return User|null
+      */
+-    protected function getUser()
++    public function getUser()
+     {
+-        if ($this->_user === null) {
++        if ($this->_user === false) {
+             $this->_user = User::findByUsername($this->username);
+         }
+ 
+         return $this->_user;
+     }
++
++    public function attributeLabels()
++    {
++        return [
++            'username' => 'Логин или e-mail',
++            'password' => 'Пароль',
++            'rememberMe' => 'Запомнить меня',
++        ];
++    }
++
+ }
+Index: frontend/models/PasswordResetRequestForm.php
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- frontend/models/PasswordResetRequestForm.php	(date 1458623092000)
++++ frontend/models/PasswordResetRequestForm.php	(revision )
+@@ -2,7 +2,6 @@
+ namespace frontend\models;
+ 
+ use common\models\User;
+-use Yii;
+ use yii\base\Model;
+ 
+ /**
+@@ -24,7 +23,7 @@
+             ['email', 'exist',
+                 'targetClass' => '\common\models\User',
+                 'filter' => ['status' => User::STATUS_ACTIVE],
+-                'message' => 'There is no user with such email.'
++                'message' => 'Нет пользователя с таким e-mail.'
+             ],
+         ];
+     }
+@@ -42,27 +41,20 @@
+             'email' => $this->email,
+         ]);
+ 
+-        if (!$user) {
+-            return false;
+-        }
+-        
++        if ($user) {
+-        if (!User::isPasswordResetTokenValid($user->password_reset_token)) {
+-            $user->generatePasswordResetToken();
+-        }
+-        
++            if (!User::isPasswordResetTokenValid($user->password_reset_token)) {
++                $user->generatePasswordResetToken();
++            }
++
+-        if (!$user->save()) {
+-            return false;
+-        }
+-
+-        return Yii::$app
+-            ->mailer
+-            ->compose(
+-                ['html' => 'passwordResetToken-html', 'text' => 'passwordResetToken-text'],
+-                ['user' => $user]
+-            )
+-            ->setFrom([\Yii::$app->params['supportEmail'] => \Yii::$app->name . ' robot'])
++            if ($user->save()) {
++                return \Yii::$app->mailer->compose(['html' => 'passwordResetToken-html', 'text' => 'passwordResetToken-text'], ['user' => $user])
++                    ->setFrom(['noreply@vdvykt.ru' => \Yii::$app->name . ' robot'])
+-            ->setTo($this->email)
++                    ->setTo($this->email)
+-            ->setSubject('Password reset for ' . \Yii::$app->name)
++                    ->setSubject('Восстановление пароля для сайта ' . \Yii::$app->name)
+-            ->send();
++                    ->send();
++            }
++        }
++
++        return false;
+     }
+ }
+Index: frontend/controllers/SiteController.php
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- frontend/controllers/SiteController.php	(date 1458623092000)
++++ frontend/controllers/SiteController.php	(revision )
+@@ -1,6 +1,7 @@
+ <?php
+ namespace frontend\controllers;
+ 
++use common\models\Ulogin;
+ use Yii;
+ use common\models\LoginForm;
+ use frontend\models\PasswordResetRequestForm;
+@@ -8,6 +9,7 @@
+ use frontend\models\SignupForm;
+ use frontend\models\ContactForm;
+ use yii\base\InvalidParamException;
++use yii\helpers\Json;
+ use yii\web\BadRequestHttpException;
+ use yii\web\Controller;
+ use yii\filters\VerbFilter;
+@@ -18,196 +20,253 @@
+  */
+ class SiteController extends Controller
+ {
+-    /**
+-     * @inheritdoc
+-     */
+-    public function behaviors()
+-    {
+-        return [
+-            'access' => [
+-                'class' => AccessControl::className(),
+-                'only' => ['logout', 'signup'],
+-                'rules' => [
+-                    [
+-                        'actions' => ['signup'],
+-                        'allow' => true,
+-                        'roles' => ['?'],
+-                    ],
+-                    [
+-                        'actions' => ['logout'],
+-                        'allow' => true,
+-                        'roles' => ['@'],
+-                    ],
+-                ],
+-            ],
+-            'verbs' => [
+-                'class' => VerbFilter::className(),
+-                'actions' => [
+-                    'logout' => ['post'],
+-                ],
+-            ],
+-        ];
+-    }
++	/**
++	 * @inheritdoc
++	 */
++	public function behaviors()
++	{
++		return [
++			'access' => [
++				'class' => AccessControl::className(),
++				'only' => ['logout', 'signup'],
++				'rules' => [
++					[
++						'actions' => ['signup'],
++						'allow' => true,
++						'roles' => ['?'],
++					],
++					[
++						'actions' => ['logout'],
++						'allow' => true,
++						'roles' => ['@'],
++					],
++				],
++			],
++			'verbs' => [
++				'class' => VerbFilter::className(),
++				'actions' => [
++					'logout' => ['post'],
++				],
++			],
++		];
++	}
+ 
+-    /**
+-     * @inheritdoc
+-     */
+-    public function actions()
+-    {
+-        return [
+-            'error' => [
+-                'class' => 'yii\web\ErrorAction',
+-            ],
+-            'captcha' => [
+-                'class' => 'yii\captcha\CaptchaAction',
+-                'fixedVerifyCode' => YII_ENV_TEST ? 'testme' : null,
+-            ],
+-        ];
+-    }
++	/**
++	 * @inheritdoc
++	 */
++	public function actions()
++	{
++		return [
++			'error' => [
++				'class' => 'yii\web\ErrorAction',
++			],
++			'captcha' => [
++				'class' => 'yii\captcha\CaptchaAction',
++				'fixedVerifyCode' => YII_ENV_TEST ? 'testme' : null,
++			],
++		];
++	}
+ 
+-    /**
+-     * Displays homepage.
+-     *
+-     * @return mixed
+-     */
+-    public function actionIndex()
+-    {
+-        return $this->render('index');
+-    }
++	/**
++	 * Displays homepage.
++	 *
++	 * @return mixed
++	 */
++	public function actionIndex()
++	{
++		return $this->render('index');
++	}
+ 
+-    /**
+-     * Logs in a user.
+-     *
+-     * @return mixed
+-     */
+-    public function actionLogin()
+-    {
+-        if (!\Yii::$app->user->isGuest) {
+-            return $this->goHome();
+-        }
++	/**
++	 * Logs in a user.
++	 *
++	 * @return mixed
++	 */
++	public function actionLogin()
++	{
++		if (!\Yii::$app->user->isGuest) {
++			return $this->goHome();
++		}
+ 
+-        $model = new LoginForm();
+-        if ($model->load(Yii::$app->request->post()) && $model->login()) {
+-            return $this->goBack();
+-        } else {
+-            return $this->render('login', [
+-                'model' => $model,
+-            ]);
+-        }
+-    }
++		$model = new LoginForm();
++		if ($model->load(Yii::$app->request->post()) && $model->login()) {
++			return $this->goBack();
++		} else {
++			return $this->render('login', [
++				'model' => $model,
++			]);
++		}
++	}
+ 
+-    /**
+-     * Logs out the current user.
+-     *
+-     * @return mixed
+-     */
+-    public function actionLogout()
+-    {
+-        Yii::$app->user->logout();
++	/**
++	 * Logs out the current user.
++	 *
++	 * @return mixed
++	 */
++	public function actionLogout()
++	{
++		Yii::$app->user->logout();
+ 
+-        return $this->goHome();
+-    }
++		return $this->goHome();
++	}
+ 
+-    /**
+-     * Displays contact page.
+-     *
+-     * @return mixed
+-     */
+-    public function actionContact()
+-    {
+-        $model = new ContactForm();
+-        if ($model->load(Yii::$app->request->post()) && $model->validate()) {
+-            if ($model->sendEmail(Yii::$app->params['adminEmail'])) {
+-                Yii::$app->session->setFlash('success', 'Thank you for contacting us. We will respond to you as soon as possible.');
+-            } else {
+-                Yii::$app->session->setFlash('error', 'There was an error sending email.');
+-            }
++	/**
++	 * Displays contact page.
++	 *
++	 * @return mixed
++	 */
++	public function actionContact()
++	{
++		$model = new ContactForm();
++		if ($model->load(Yii::$app->request->post()) && $model->validate()) {
++			if ($model->sendEmail(Yii::$app->params['adminEmail'])) {
++				Yii::$app->session->setFlash('success', 'Thank you for contacting us. We will respond to you as soon as possible.');
++			} else {
++				Yii::$app->session->setFlash('error', 'There was an error sending email.');
++			}
+ 
+-            return $this->refresh();
+-        } else {
+-            return $this->render('contact', [
+-                'model' => $model,
+-            ]);
+-        }
+-    }
++			return $this->refresh();
++		} else {
++			return $this->render('contact', [
++				'model' => $model,
++			]);
++		}
++	}
+ 
+-    /**
+-     * Displays about page.
+-     *
+-     * @return mixed
+-     */
+-    public function actionAbout()
+-    {
+-        return $this->render('about');
+-    }
++	/**
++	 * Displays about page.
++	 *
++	 * @return mixed
++	 */
++	public function actionAbout()
++	{
++		return $this->render('about');
++	}
+ 
+-    /**
+-     * Signs user up.
+-     *
+-     * @return mixed
+-     */
+-    public function actionSignup()
+-    {
+-        $model = new SignupForm();
+-        if ($model->load(Yii::$app->request->post())) {
+-            if ($user = $model->signup()) {
+-                if (Yii::$app->getUser()->login($user)) {
+-                    return $this->goHome();
+-                }
+-            }
+-        }
+-
+-        return $this->render('signup', [
+-            'model' => $model,
+-        ]);
+-    }
+-
+-    /**
+-     * Requests password reset.
+-     *
+-     * @return mixed
+-     */
+-    public function actionRequestPasswordReset()
+-    {
+-        $model = new PasswordResetRequestForm();
+-        if ($model->load(Yii::$app->request->post()) && $model->validate()) {
+-            if ($model->sendEmail()) {
++	public function actionRequestPasswordReset()
++	{
++		$model = new PasswordResetRequestForm();
++		if ($model->load(Yii::$app->request->post()) && $model->validate()) {
++			if ($model->sendEmail()) {
+-                Yii::$app->session->setFlash('success', 'Check your email for further instructions.');
++				Yii::$app->getSession()->setFlash('success', 'На указанный адрес высланы дальнейшие инструкции.');
+ 
+-                return $this->goHome();
+-            } else {
++				return $this->goHome();
++			} else {
+-                Yii::$app->session->setFlash('error', 'Sorry, we are unable to reset password for email provided.');
++				Yii::$app->getSession()->setFlash('error', 'К сожалению мы не можем восстановить пароль для указанного адреса.');
+-            }
+-        }
++			}
++		}
+ 
+-        return $this->render('requestPasswordResetToken', [
+-            'model' => $model,
+-        ]);
+-    }
++		return $this->render('requestPasswordResetToken', [
++			'model' => $model,
++		]);
++	}
+ 
+-    /**
+-     * Resets password.
+-     *
+-     * @param string $token
+-     * @return mixed
+-     * @throws BadRequestHttpException
+-     */
+-    public function actionResetPassword($token)
+-    {
+-        try {
+-            $model = new ResetPasswordForm($token);
+-        } catch (InvalidParamException $e) {
+-            throw new BadRequestHttpException($e->getMessage());
+-        }
++	public function actionResetPassword($token)
++	{
++		try {
++			$model = new ResetPasswordForm($token);
++		} catch (InvalidParamException $e) {
++			throw new BadRequestHttpException($e->getMessage());
++		}
+ 
+-        if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->resetPassword()) {
++		if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->resetPassword()) {
+-            Yii::$app->session->setFlash('success', 'New password was saved.');
++			Yii::$app->getSession()->setFlash('success', 'Новый пароль сохранен.');
+ 
+-            return $this->goHome();
+-        }
++			return $this->goHome();
++		}
+ 
+-        return $this->render('resetPassword', [
+-            'model' => $model,
+-        ]);
+-    }
++		return $this->render('resetPassword', [
++			'model' => $model,
++		]);
++	}
++
++	public function actionUlogin(){
++		$s = file_get_contents('http://ulogin.ru/token.php?token=' . $_POST['token'] . '&host=' . $_SERVER['HTTP_HOST']);
++		$user = json_decode($s, true);
++		//$user['network'] - соц. сеть, через которую авторизовался пользователь
++		//$user['identity'] - уникальная строка определяющая конкретного пользователя соц. сети
++		//$user['first_name'] - имя пользователя
++		//$user['last_name'] - фамилия пользователя
++		//$user['photo'] - Photo
++		if(!$user['uid']){throw new HttpException(500,'Не найден UID');}
++		$query = Ulogin::find();
++		$query->orWhere(['identity'=>$user['identity']]);
++		$query->orWhere(['email'=>$user['email']]);
++		//return $query->prepare(Yii::$app->db->queryBuilder)->createCommand()->rawSql;
++		$openid = $query->one();
++		//if(isset($openid)){ $openid = Ulogin::findOne(['identity'=>$user['identyty']]); }
++		if(isset($openid)){
++			if(Yii::$app->getUser()->login($openid->user0, Yii::$app->params['remeberMe.Time'])){
++				if( $openid->network != $user['network'] ) {
++
++					$oi = new Ulogin();
++					$oi->user = Yii::$app->user->id;
++					$oi->uid = $user['uid'];
++					$oi->network = $user['network'];
++					$oi->identity = $user['identity'];
++					$oi->email = $user['email'];
++					$oi->save();
++				}elseif($openid->email != $user['email']){
++					$openid->email = $user['email'];
++					$openid->save(true,['email']);
++				}
++				Yii::$app->user->identity->photo = preg_match('!ulogin.ru!', $user['photo'])?'':$user['photo'];
++				Yii::$app->user->identity->save();
++
++				$redirect = Yii::$app->getUser()->getReturnUrl();
++			}else{
++				throw new ForbiddenHttpException('Доступ запрещен');
++			}
++		}else{
++			$session = new Session();
++			$session->open();
++			$session['openid'] = $user;  // set session variable 'name3'
++			$redirect = '/site/ulogin-signup';
++		}
++		return Json::encode(['redirect'=>$redirect]);
++	}
++
++	public function actionUloginSignup()
++	{
++		$session = new Session();
++		$session->open();
++		if( isset($session['openid'])) {
++			$model = new SignupForm();
++			$model->email = $model->username = $session['openid']['email'];
++			$model->password = md5(time().uniqid());
++			$user = $model->signup();
++			if (Yii::$app->getUser()->login($user,Yii::$app->params['remeberMe.Time'])) {
++				$oi = new Ulogin();
++				$oi->user = Yii::$app->user->id;
++				$oi->uid = $session['openid']['uid'];
++				$oi->network = $session['openid']['network'];
++				$oi->identity = $session['openid']['identity'];
++				$oi->email = $session['openid']['email'];
++				if (!$oi->save()) {
++				}
++				Yii::$app->user->identity->last_name = $session['openid']['last_name'];
++				Yii::$app->user->identity->first_name = $session['openid']['first_name'];
++				Yii::$app->user->identity->photo = preg_match('!ulogin.ru!', $session['openid']['photo'])?'':$session['openid']['photo'];
++				Yii::$app->user->identity->save();
++			}
++		}
++		return $this->goHome();
++	}
++
++	public function actionSignup()
++	{
++		$model = new SignupForm();
++		if ($model->load(Yii::$app->request->post())) {
++			if ($user = $model->signup()) {
++				if (Yii::$app->getUser()->login($user, Yii::$app->params['remeberMe.Time'])) {
++					return $this->goHome();
++				}
++			}
++		}
++		return $this->render('signup', [
++			'model' => $model,
++		]);
++	}
++
++	
+ }
+Index: frontend/views/site/requestPasswordResetToken.php
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- frontend/views/site/requestPasswordResetToken.php	(date 1458623092000)
++++ frontend/views/site/requestPasswordResetToken.php	(revision )
+@@ -1,30 +1,26 @@
+ <?php
++use yii\helpers\Html;
++use yii\bootstrap\ActiveForm;
+ 
+ /* @var $this yii\web\View */
+ /* @var $form yii\bootstrap\ActiveForm */
+ /* @var $model \frontend\models\PasswordResetRequestForm */
+ 
+-use yii\helpers\Html;
+-use yii\bootstrap\ActiveForm;
+-
+-$this->title = 'Request password reset';
++$this->title = 'Восстановление пароля';
+ $this->params['breadcrumbs'][] = $this->title;
+ ?>
+ <div class="site-request-password-reset">
+     <h1><?= Html::encode($this->title) ?></h1>
+ 
+-    <p>Please fill out your email. A link to reset password will be sent there.</p>
++    <p>Заполните поле E-mail. Вам будет выслано письмо с дальнейшими инструкциями.</p>
+ 
+     <div class="row">
+         <div class="col-lg-5">
+             <?php $form = ActiveForm::begin(['id' => 'request-password-reset-form']); ?>
+-
+-                <?= $form->field($model, 'email')->textInput(['autofocus' => true]) ?>
+-
++                <?= $form->field($model, 'email') ?>
+                 <div class="form-group">
+                     <?= Html::submitButton('Send', ['class' => 'btn btn-primary']) ?>
+                 </div>
+-
+             <?php ActiveForm::end(); ?>
+         </div>
+     </div>
+Index: common/models/User.php
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- common/models/User.php	(date 1458623092000)
++++ common/models/User.php	(revision )
+@@ -4,6 +4,7 @@
+ use Yii;
+ use yii\base\NotSupportedException;
+ use yii\behaviors\TimestampBehavior;
++use yii\bootstrap\Html;
+ use yii\db\ActiveRecord;
+ use yii\web\IdentityInterface;
+ 
+@@ -16,6 +17,9 @@
+  * @property string $password_reset_token
+  * @property string $email
+  * @property string $auth_key
++ * @property string $first_name
++ * @property string $last_name
++ * @property string $photo
+  * @property integer $status
+  * @property integer $created_at
+  * @property integer $updated_at
+@@ -50,11 +54,23 @@
+     public function rules()
+     {
+         return [
++            [['first_name', 'last_name', 'photo'], 'string'],
++            [['email'],'email'],
+             ['status', 'default', 'value' => self::STATUS_ACTIVE],
+             ['status', 'in', 'range' => [self::STATUS_ACTIVE, self::STATUS_DELETED]],
+         ];
+     }
+ 
++    public function getCard()
++    {
++        $ret = ''
++            .($this->photo ? $ret = Html::img($this->photo, ['class'=>'user-card-photo']) : '')
++            .($this->first_name ? ' '.$this->first_name.' ' : '')
++            .($this->last_name ?  $this->last_name . ' ' : '')
++            . (!$this->last_name && $this->first_name ? $this->username : '') ;
++        return $ret;
++    }
++
+     /**
+      * @inheritdoc
+      */
+@@ -111,9 +127,9 @@
+         if (empty($token)) {
+             return false;
+         }
+-
+-        $timestamp = (int) substr($token, strrpos($token, '_') + 1);
+         $expire = Yii::$app->params['user.passwordResetTokenExpire'];
++        $parts = explode('_', $token);
++        $timestamp = (int) end($parts);
+         return $timestamp + $expire >= time();
+     }
+ 
+Index: common/config/params.php
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- common/config/params.php	(date 1458623092000)
++++ common/config/params.php	(revision )
+@@ -3,4 +3,5 @@
+     'adminEmail' => 'admin@example.com',
+     'supportEmail' => 'support@example.com',
+     'user.passwordResetTokenExpire' => 3600,
++	'remeberMe.Time' => 3600 * 24 *30,
+ ];
+Index: frontend/models/SignupForm.php
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- frontend/models/SignupForm.php	(date 1458623092000)
++++ frontend/models/SignupForm.php	(revision )
+@@ -22,14 +22,13 @@
+         return [
+             ['username', 'filter', 'filter' => 'trim'],
+             ['username', 'required'],
+-            ['username', 'unique', 'targetClass' => '\common\models\User', 'message' => 'This username has already been taken.'],
++            ['username', 'unique', 'targetClass' => '\common\models\User', 'message' => 'Этот логин уже занят.'],
+             ['username', 'string', 'min' => 2, 'max' => 255],
+ 
+             ['email', 'filter', 'filter' => 'trim'],
+             ['email', 'required'],
+             ['email', 'email'],
+-            ['email', 'string', 'max' => 255],
+-            ['email', 'unique', 'targetClass' => '\common\models\User', 'message' => 'This email address has already been taken.'],
++            ['email', 'unique', 'targetClass' => '\common\models\User', 'message' => 'Этот email уже занят.'],
+ 
+             ['password', 'required'],
+             ['password', 'string', 'min' => 6],
+@@ -43,16 +42,33 @@
+      */
+     public function signup()
+     {
+-        if (!$this->validate()) {
+-            return null;
+-        }
+-        
++        if ($this->validate()) {
+-        $user = new User();
+-        $user->username = $this->username;
+-        $user->email = $this->email;
+-        $user->setPassword($this->password);
+-        $user->generateAuthKey();
++            $user = new User();
++            $user->username = $this->username;
++            $user->email = $this->email;
++            $user->setPassword($this->password);
++            $user->generateAuthKey();
++            if ($user->save()) {
++	            $auth = Yii::$app->authManager;
++	            $authorRole = $auth->getRole('user');
++	            $auth->assign($authorRole, $user->getId());
++                return $user;
++            }else{
++	            //print_r($user->getErrors());
++            }
++        }else{
++            //print_r($this->errors);
++        }
+-        
++
+-        return $user->save() ? $user : null;
++        return null;
++    }
++
++	public function attributeLabels()
++	{
++		return [
++			'username' => 'Логин',
++			'password' => 'Пароль',
++			'email' => 'E-mail',
++		];
+-    }
++	}
+ }

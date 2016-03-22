@@ -22,14 +22,13 @@ class SignupForm extends Model
         return [
             ['username', 'filter', 'filter' => 'trim'],
             ['username', 'required'],
-            ['username', 'unique', 'targetClass' => '\common\models\User', 'message' => 'This username has already been taken.'],
+            ['username', 'unique', 'targetClass' => '\common\models\User', 'message' => 'Этот логин уже занят.'],
             ['username', 'string', 'min' => 2, 'max' => 255],
 
             ['email', 'filter', 'filter' => 'trim'],
             ['email', 'required'],
             ['email', 'email'],
-            ['email', 'string', 'max' => 255],
-            ['email', 'unique', 'targetClass' => '\common\models\User', 'message' => 'This email address has already been taken.'],
+            ['email', 'unique', 'targetClass' => '\common\models\User', 'message' => 'Этот email уже занят.'],
 
             ['password', 'required'],
             ['password', 'string', 'min' => 6],
@@ -43,16 +42,33 @@ class SignupForm extends Model
      */
     public function signup()
     {
-        if (!$this->validate()) {
-            return null;
+        if ($this->validate()) {
+            $user = new User();
+            $user->username = $this->username;
+            $user->email = $this->email;
+            $user->setPassword($this->password);
+            $user->generateAuthKey();
+            if ($user->save()) {
+	            $auth = Yii::$app->authManager;
+	            $authorRole = $auth->getRole('user');
+	            $auth->assign($authorRole, $user->getId());
+                return $user;
+            }else{
+	            //print_r($user->getErrors());
+            }
+        }else{
+            //print_r($this->errors);
         }
-        
-        $user = new User();
-        $user->username = $this->username;
-        $user->email = $this->email;
-        $user->setPassword($this->password);
-        $user->generateAuthKey();
-        
-        return $user->save() ? $user : null;
+
+        return null;
     }
+
+	public function attributeLabels()
+	{
+		return [
+			'username' => 'Логин',
+			'password' => 'Пароль',
+			'email' => 'E-mail',
+		];
+	}
 }

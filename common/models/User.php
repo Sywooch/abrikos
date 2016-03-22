@@ -4,6 +4,7 @@ namespace common\models;
 use Yii;
 use yii\base\NotSupportedException;
 use yii\behaviors\TimestampBehavior;
+use yii\bootstrap\Html;
 use yii\db\ActiveRecord;
 use yii\web\IdentityInterface;
 
@@ -16,6 +17,9 @@ use yii\web\IdentityInterface;
  * @property string $password_reset_token
  * @property string $email
  * @property string $auth_key
+ * @property string $first_name
+ * @property string $last_name
+ * @property string $photo
  * @property integer $status
  * @property integer $created_at
  * @property integer $updated_at
@@ -50,9 +54,21 @@ class User extends ActiveRecord implements IdentityInterface
     public function rules()
     {
         return [
+            [['first_name', 'last_name', 'photo'], 'string'],
+            [['email'],'email'],
             ['status', 'default', 'value' => self::STATUS_ACTIVE],
             ['status', 'in', 'range' => [self::STATUS_ACTIVE, self::STATUS_DELETED]],
         ];
+    }
+
+    public function getCard()
+    {
+        $ret = ''
+            .($this->photo ? $ret = Html::img($this->photo, ['class'=>'user-card-photo']) : '')
+            .($this->first_name ? ' '.$this->first_name.' ' : '')
+            .($this->last_name ?  $this->last_name . ' ' : '')
+            . (!$this->last_name && $this->first_name ? $this->username : '') ;
+        return $ret;
     }
 
     /**
@@ -111,9 +127,9 @@ class User extends ActiveRecord implements IdentityInterface
         if (empty($token)) {
             return false;
         }
-
-        $timestamp = (int) substr($token, strrpos($token, '_') + 1);
         $expire = Yii::$app->params['user.passwordResetTokenExpire'];
+        $parts = explode('_', $token);
+        $timestamp = (int) end($parts);
         return $timestamp + $expire >= time();
     }
 
