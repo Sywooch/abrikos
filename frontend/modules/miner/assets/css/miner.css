@@ -1,0 +1,6 @@
+#miner td.mineCell{ width: 30px; height:30px; text-align: center; font-size: 1.3em; font-weight: bolder; cursor: pointer;}
+#miner td.initial{ border: 2px outset; background-color: #808080;}
+#miner td.mine{ background-color: red; }
+#miner td.Empty{background-color: #ffffff; border:1px solid black;}
+#miner td.Info{background-color: #c0c0c0; border:1px solid black;}
+#miner td.flag{background-image:url(/images/miner/flag.png)}

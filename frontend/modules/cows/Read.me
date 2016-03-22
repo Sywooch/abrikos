@@ -1,0 +1,16 @@
+Copy to app\modules\cows
+
+Add to config
+    'urlManager' => [
+        'rules' => [
+            ....
+            '<module:cowsGame>/<action:\w+>' => '<module>/default/<action>',
+        ],
+    ],
+
+
+	'modules' => [
+		'cowsGame' => [
+			'class' => 'app\modules\cows\Module',
+		],
+	],

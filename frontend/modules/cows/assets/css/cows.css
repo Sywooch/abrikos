@@ -1,0 +1,15 @@
+table {
+	counter-reset: rowNumber;
+}
+
+table tr.counting {
+	counter-increment: rowNumber;
+}
+
+table tr.counting td:first-child::before {
+	content: counter(rowNumber);
+	min-width: 1em;
+	margin-right: 0.5em;
+}
+
+#clickDigits td{ cursor: pointer; width:40px; margin: 3px; }
