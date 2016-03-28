@@ -36,12 +36,6 @@ return [
 			'class' => 'yii\gii\Module',
 			'allowedIPs' => ['127.0.0.1', '::1', '91.185.237.153'] // adjust this to your needs
 		],
-		'miner' => [
-			'class' => 'app\modules\miner\Module',
-		],
-		'cows' => [
-			'class' => 'app\modules\cows\Module',
-		],
 	],
 	'bootstrap'=>['debug', 'gii'],
 

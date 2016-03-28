@@ -9,7 +9,7 @@ $params = array_merge(
 return [
     'id' => 'app-frontend',
     'basePath' => dirname(__DIR__),
-    'bootstrap' => ['log'],
+    'bootstrap' => ['log', 'MetaTags'],
     'controllerNamespace' => 'frontend\controllers',
     'components' => [
         'user' => [
@@ -36,6 +36,20 @@ return [
             ],
         ],
         */
+
+	    'MetaTags' => [
+		    'class' => 'app\components\MetaTags',
+	    ],
+
     ],
-    'params' => $params,
+	'modules'=>[
+		'miner' => [
+			'class' => 'app\modules\miner\Module',
+		],
+		'cows' => [
+			'class' => 'app\modules\cows\Module',
+		],
+	],
+
+	'params' => $params,
 ];

@@ -1,6 +1,7 @@
 <?php
 namespace frontend\controllers;
 
+use common\models\Photo;
 use common\models\Ulogin;
 use Yii;
 use common\models\LoginForm;
@@ -14,6 +15,8 @@ use yii\web\BadRequestHttpException;
 use yii\web\Controller;
 use yii\filters\VerbFilter;
 use yii\filters\AccessControl;
+use yii\web\HttpException;
+use yii\web\UploadedFile;
 
 /**
  * Site controller
@@ -224,6 +227,39 @@ class SiteController extends Controller
 			$redirect = '/site/ulogin-signup';
 		}
 		return Json::encode(['redirect'=>$redirect]);
+	}
+
+	public function actionAddPic()
+	{
+		$model = new Photo();
+		if($model->load(Yii::$app->request->post())){
+			$model->user = Yii::$app->user->id;
+			$model->imageFile = UploadedFile::getInstance($model, 'imageFile');
+			if($model->imageFile){
+				$model->type = $model->imageFile->extension;
+				if ($model->upload()) {
+					if(!$model->save(false))
+						throw new HttpException(500,var_export($model->errors,1));
+					$this->redirect('/');
+				}else{
+					throw new HttpException(501,var_export($model->errors,1));
+				}
+			}elseif($model->imageUrl){
+				$model->type =  pathinfo($model->imageUrl, PATHINFO_EXTENSION);
+				$model->id = time();
+				if(!$model->save(false))
+					throw new HttpException(500,var_export($model->errors,1));
+				copy(Yii::$app->request->post('Photo')['imageUrl'], 'uploads/' . $model->id . '.' . $model->type );
+			}
+
+		}
+		return $this->render('add-photo',['model'=>$model]);
+	}
+
+	public function actionPicture($id)
+	{
+		$model = Photo::findOne($id);
+		return $this->render('photo',['model'=>$model]);
 	}
 
 	public function actionUloginSignup()

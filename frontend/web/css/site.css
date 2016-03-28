@@ -103,3 +103,8 @@ a.desc:after {
 .nav > li > form > button:hover {
     text-decoration: none;
 }
+
+.pic-container {
+	max-width: 200px;
+	max-height: 200px;
+}

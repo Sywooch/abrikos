@@ -35,7 +35,7 @@ class DefaultController extends Controller
 		$mysess['start'] = time();
 		$mysess['turn'] = 0;
 		$mysess['gameover'] = 0;
-		$mysess['cheater'] = $table->getMines();
+		$mysess['cheater'] = [];// $table->getMines();
 		//print_r($table->getCells());exit;
 		$session->set('miner-session', $mysess);
 		return $mysess;
