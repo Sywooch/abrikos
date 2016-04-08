@@ -250,6 +250,7 @@ class SiteController extends Controller
 				if(!$model->save(false))
 					throw new HttpException(500,var_export($model->errors,1));
 				copy(Yii::$app->request->post('Photo')['imageUrl'], 'uploads/' . $model->id . '.' . $model->type );
+				$this->redirect('/');
 			}
 
 		}

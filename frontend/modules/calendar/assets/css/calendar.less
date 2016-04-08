@@ -1,0 +1,58 @@
+.language{
+  padding: 5px;
+  a:hover {
+	text-decoration: none;
+  }
+}
+
+.ru-russian, .en-english{
+  border:1px solid #00b3ee;
+  a:hover {
+	text-decoration: underline;
+  }
+}
+
+.description{
+  font-size: 1.2em;
+}
+
+#calendar-index {
+  @dayWidth: 30px;
+  width: (@dayWidth*7+6)*3;
+  margin: auto;
+  .title {
+	text-align: center;
+  }
+  .new-year, .leap-year{
+	background-color: pink;
+	padding: 5px;
+  }
+
+  .month {
+
+	float: left;
+	border: 1px solid gray;
+	width: @dayWidth*7+2;
+	margin: 2px;
+	.week {
+	  background-color: silver;
+	}
+	.week-6, .day-6, .week-7, .day-7 {
+	  background-color: pink;
+	}
+	.day {
+	  width: @dayWidth;
+	  float: left;
+	  text-align: center;
+	  border: 1px solid silver;
+	}
+	.this-day{
+	  background-color: blue;
+	  border: 0;
+	  a{
+		font-weight: bold;
+		color: white;
+	  }
+	}
+  }
+}

@@ -28,19 +28,22 @@ return [
         'errorHandler' => [
             'errorAction' => 'site/error',
         ],
-        /*
-        'urlManager' => [
-            'enablePrettyUrl' => true,
-            'showScriptName' => false,
-            'rules' => [
-            ],
-        ],
-        */
-
 	    'MetaTags' => [
 		    'class' => 'app\components\MetaTags',
 	    ],
-
+	    'i18n' => [
+		    'translations' => [
+			    'calendar*' => [
+				    'class' => 'yii\i18n\PhpMessageSource',
+				    //'basePath' => '@app/messages',
+				    //'sourceLanguage' => 'en-US',
+				    'fileMap' => [
+					    'calendar' => 'calendar.php',
+					    'app/error' => 'error.php',
+				    ],
+			    ],
+		    ],
+	    ],
     ],
 	'modules'=>[
 		'miner' => [
@@ -48,6 +51,9 @@ return [
 		],
 		'cows' => [
 			'class' => 'app\modules\cows\Module',
+		],
+		'calendar' => [
+			'class' => 'app\modules\calendar\Calendar',
 		],
 	],
 

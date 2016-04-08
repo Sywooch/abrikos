@@ -16,6 +16,7 @@ return [
 			'rules' => [
 				'<module:cows>/<action:\w+(-\w+)*>' => '<module>/default/<action>',
 				'<module:miner>/<action:\w+(-\w+)*>' => '<module>/default/<action>',
+				'<module:calendar>/<action:\w+(-\w+)*>' => '<module>/default/<action>',
 				'<controller:\w+>/<view:\w+>/<id:\d+>' => '<controller>/<view>',
 				'<controller:\w+>/<id:\d+>' => '<controller>/view',
 				'ykt'=>'/site/30sec'

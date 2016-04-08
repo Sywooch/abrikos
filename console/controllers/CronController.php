@@ -30,7 +30,7 @@ class CronController extends \yii\console\Controller
 
 	public function actionWeekly()
 	{
-		$this->roundWinner();
+		
 	}
 
 }

@@ -1,0 +1,58 @@
+.language {
+  padding: 5px;
+}
+.language a:hover {
+  text-decoration: none;
+}
+.ru-russian,
+.en-english {
+  border: 1px solid #00b3ee;
+}
+.ru-russian a:hover,
+.en-english a:hover {
+  text-decoration: underline;
+}
+.description {
+  font-size: 1.2em;
+}
+#calendar-index {
+  width: 648px;
+  margin: auto;
+}
+#calendar-index .title {
+  text-align: center;
+}
+#calendar-index .new-year,
+#calendar-index .leap-year {
+  background-color: pink;
+  padding: 5px;
+}
+#calendar-index .month {
+  float: left;
+  border: 1px solid gray;
+  width: 212px;
+  margin: 2px;
+}
+#calendar-index .month .week {
+  background-color: silver;
+}
+#calendar-index .month .week-6,
+#calendar-index .month .day-6,
+#calendar-index .month .week-7,
+#calendar-index .month .day-7 {
+  background-color: pink;
+}
+#calendar-index .month .day {
+  width: 30px;
+  float: left;
+  text-align: center;
+  border: 1px solid silver;
+}
+#calendar-index .month .this-day {
+  background-color: blue;
+  border: 0;
+}
+#calendar-index .month .this-day a {
+  font-weight: bold;
+  color: white;
+}

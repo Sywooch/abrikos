@@ -69,8 +69,8 @@ AppAsset::register($this);
 			'links' => isset($this->params['breadcrumbs']) ? $this->params['breadcrumbs'] : [],
 		]) ?>
 		<?= Alert::widget() ?>
-		<?= $content ?>
 		<?=$this->render('google-ads')?>
+		<?= $content ?>
 	</div>
 	<!--div style="text-align: center">
 		<a href="http://zdravoeshka.ru/" target="_blank"><img src="/images/zdravoeshka.png" alt="Здраавоешка" class="img-responsive" style="margin: auto"/></a>
