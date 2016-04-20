@@ -2,6 +2,8 @@
 
 namespace app\modules\seawar\controllers;
 
+use app\modules\seawar\models\SeaTable;
+use yii\helpers\Json;
 use yii\web\Controller;
 
 /**
@@ -17,4 +19,11 @@ class DefaultController extends Controller
     {
         return $this->render('index');
     }
+
+	public function actionTest()
+	{
+		$table =new SeaTable();
+		$e =$table->randomFill();
+		return Json::encode(['vert'=>$table->free[0], 'hor'=>$table->free[1], 'ships'=>$table->ships, 'e'=>$e]);
+	}
 }

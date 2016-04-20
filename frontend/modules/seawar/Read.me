@@ -1,0 +1,16 @@
+Copy to app\modules\seawar
+
+Add to config
+    'urlManager' => [
+        'rules' => [
+            ....
+            '<module:seawar>/<action:\w+(-\w+)*>' => '<module>/default/<action>',
+        ],
+    ],
+
+
+	'modules' => [
+		'seawar' => [
+			'class' => 'app\modules\seawar\Seawar',
+		],
+	],

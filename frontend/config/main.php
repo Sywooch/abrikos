@@ -28,6 +28,16 @@ return [
         'errorHandler' => [
             'errorAction' => 'site/error',
         ],
+
+	    'urlManager' => [
+		    'rules' => [
+			    '<module:cows>/<action:\w+(-\w+)*>' => '<module>/default/<action>',
+			    '<module:miner>/<action:\w+(-\w+)*>' => '<module>/default/<action>',
+			    '<module:calendar>/<action:\w+(-\w+)*>' => '<module>/default/<action>',
+			    '<module:seawar>/<action:\w+(-\w+)*>' => '<module>/default/<action>',
+		    ],
+	    ],
+
 	    'MetaTags' => [
 		    'class' => 'app\components\MetaTags',
 	    ],
@@ -55,7 +65,13 @@ return [
 		'calendar' => [
 			'class' => 'app\modules\calendar\Calendar',
 		],
+		'seawar' => [
+			'class' => 'app\modules\seawar\Seawar',
+		],
+
 	],
+
+
 
 	'params' => $params,
 ];
