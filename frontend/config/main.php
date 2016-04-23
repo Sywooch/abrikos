@@ -9,7 +9,7 @@ $params = array_merge(
 return [
     'id' => 'app-frontend',
     'basePath' => dirname(__DIR__),
-    'bootstrap' => ['log', 'MetaTags'],
+    'bootstrap' => ['log', 'MetaTags', 'TopMenu'],
     'controllerNamespace' => 'frontend\controllers',
     'components' => [
         'user' => [
@@ -29,15 +29,6 @@ return [
             'errorAction' => 'site/error',
         ],
 
-	    'urlManager' => [
-		    'rules' => [
-			    '<module:cows>/<action:\w+(-\w+)*>' => '<module>/default/<action>',
-			    '<module:miner>/<action:\w+(-\w+)*>' => '<module>/default/<action>',
-			    '<module:calendar>/<action:\w+(-\w+)*>' => '<module>/default/<action>',
-			    '<module:seawar>/<action:\w+(-\w+)*>' => '<module>/default/<action>',
-		    ],
-	    ],
-
 	    'MetaTags' => [
 		    'class' => 'app\components\MetaTags',
 	    ],
@@ -54,6 +45,9 @@ return [
 			    ],
 		    ],
 	    ],
+	    'TopMenu' => [
+		    'class' => 'app\components\TopMenu',
+	    ],
     ],
 	'modules'=>[
 		'miner' => [
@@ -68,7 +62,12 @@ return [
 		'seawar' => [
 			'class' => 'app\modules\seawar\Seawar',
 		],
-
+		'poll' => [
+			'class' => 'app\modules\poll\Poll',
+		],
+		'quiz' => [
+			'class' => 'frontend\modules\quiz\Quiz',
+		],
 	],
 
 

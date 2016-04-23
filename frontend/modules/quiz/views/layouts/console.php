@@ -53,7 +53,7 @@ AppAsset::register($this);
 <footer class="footer">
 	<div class="container">
 		<p class="pull-left">&copy; <?= Yii::$app->name . ' ' . date('Y') ?></p>
-		<p class="pull-right"><p class="pull-right"><?=$this->render('statistics')?></p></p>
+		<p class="pull-right"><p class="pull-right"><?=$this->render('@app/views/layouts/statistics')?></p></p>
 	</div>
 </footer>
 

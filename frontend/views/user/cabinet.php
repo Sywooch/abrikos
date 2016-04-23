@@ -11,14 +11,11 @@ $this->params['breadcrumbs'][] = $this->title;
 echo Tabs::widget([
 	'items' => [
 		[
-			'label' => 'Мои объявления',
-			'content' => $this->render('messages'),
+			'label' => 'Профиль',
+			'content' => $this->render('profile'),
 			'active' => true
 		],
-        [
-	        'label' => 'Профиль',
-	        'content' => $this->render('profile'),
-        ],
+
         /*
 		[
 	        'label' => 'Dropdown',

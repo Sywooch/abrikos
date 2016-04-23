@@ -1,0 +1,18 @@
+.seatable tr td {
+  border: 1px solid silver;
+  padding: 2px;
+  width: 30px;
+  height: 30px;
+}
+.seatable tr td.axis {
+  border: 0;
+}
+.seatable tr td.axis-x {
+  text-align: center;
+}
+.seatable tr td.axis-y {
+  text-align: right;
+}
+.seatable tr td.ship {
+  background-color: red;
+}
