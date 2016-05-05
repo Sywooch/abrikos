@@ -5,7 +5,7 @@ namespace frontend\modules\crea\controllers;
 use yii\web\Controller;
 
 /**
- * Default controller for the `Crea` module
+ * Default controller for the `crea` module
  */
 class DefaultController extends Controller
 {

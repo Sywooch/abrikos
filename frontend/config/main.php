@@ -68,6 +68,9 @@ return [
 		'quiz' => [
 			'class' => 'frontend\modules\quiz\Quiz',
 		],
+		'crea' => [
+			'class' => 'frontend\modules\crea\Crea',
+		],
 	],
 
 

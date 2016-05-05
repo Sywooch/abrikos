@@ -3,7 +3,7 @@
 namespace frontend\modules\crea;
 
 /**
- * Crea module definition class
+ * crea module definition class
  */
 class Crea extends \yii\base\Module
 {
