@@ -3,6 +3,7 @@ namespace frontend\controllers;
 
 use common\models\Photo;
 use common\models\Ulogin;
+use Facebook\Facebook;
 use Yii;
 use common\models\LoginForm;
 use frontend\models\PasswordResetRequestForm;
@@ -16,6 +17,7 @@ use yii\web\Controller;
 use yii\filters\VerbFilter;
 use yii\filters\AccessControl;
 use yii\web\HttpException;
+use yii\web\Session;
 use yii\web\UploadedFile;
 
 /**
@@ -78,6 +80,7 @@ class SiteController extends Controller
 	public function actionIndex()
 	{
 		return $this->render('index');
+		
 	}
 
 	/**
@@ -87,6 +90,7 @@ class SiteController extends Controller
 	 */
 	public function actionLogin()
 	{
+		Yii::$app->session['returnUrl'] = Yii::$app->request->referrer;
 		if (!\Yii::$app->user->isGuest) {
 			return $this->goHome();
 		}
@@ -109,8 +113,8 @@ class SiteController extends Controller
 	public function actionLogout()
 	{
 		Yii::$app->user->logout();
-
-		return $this->goHome();
+		return $this->redirect(Yii::$app->request->referrer);
+		//return $this->goBack();
 	}
 
 	/**
@@ -122,10 +126,10 @@ class SiteController extends Controller
 	{
 		$model = new ContactForm();
 		if ($model->load(Yii::$app->request->post()) && $model->validate()) {
-			if ($model->sendEmail(Yii::$app->params['adminEmail'])) {
-				Yii::$app->session->setFlash('success', 'Thank you for contacting us. We will respond to you as soon as possible.');
+			if ($model->sendEmail()) {
+				Yii::$app->session->setFlash('success', 'Спасибо за Ваше сообщение. Мы свяжемся с Вами по возможности.');
 			} else {
-				Yii::$app->session->setFlash('error', 'There was an error sending email.');
+				Yii::$app->session->setFlash('error', 'Ошибка отправки сообщения.');
 			}
 
 			return $this->refresh();
@@ -153,7 +157,7 @@ class SiteController extends Controller
 			if ($model->sendEmail()) {
 				Yii::$app->getSession()->setFlash('success', 'На указанный адрес высланы дальнейшие инструкции.');
 
-				return $this->goHome();
+				return $this->goBack();
 			} else {
 				Yii::$app->getSession()->setFlash('error', 'К сожалению мы не можем восстановить пароль для указанного адреса.');
 			}
@@ -216,7 +220,7 @@ class SiteController extends Controller
 				Yii::$app->user->identity->photo = preg_match('!ulogin.ru!', $user['photo'])?'':$user['photo'];
 				Yii::$app->user->identity->save();
 
-				$redirect = Yii::$app->getUser()->getReturnUrl();
+				$redirect = Yii::$app->session['returnUrl'] ? Yii::$app->session['returnUrl']:'/';
 			}else{
 				throw new ForbiddenHttpException('Доступ запрещен');
 			}
@@ -225,6 +229,7 @@ class SiteController extends Controller
 			$session->open();
 			$session['openid'] = $user;  // set session variable 'name3'
 			$redirect = '/site/ulogin-signup';
+			//throw new HttpException(500,$redirect);
 		}
 		return Json::encode(['redirect'=>$redirect]);
 	}
@@ -287,7 +292,7 @@ class SiteController extends Controller
 				Yii::$app->user->identity->save();
 			}
 		}
-		return $this->goHome();
+		return $this->goBack();
 	}
 
 	public function actionSignup()

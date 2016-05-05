@@ -27,7 +27,7 @@ class UserController extends \yii\web\Controller
 					[
 						//'actions' => ['cabinet', ],
 						'allow' => true,
-						'roles' => ['admin'],
+						'roles' => ['admin','user'],
 					],
 					[
 						'actions' => ['cabinet', 'ulogin-list', 'ulogin-delete', 'password-change', 'email-change'],
@@ -57,22 +57,36 @@ class UserController extends \yii\web\Controller
 		Ulogin::findOne(['id'=>$id, 'user'=>\Yii::$app->user->id])->delete();
 	}
 
-	public function actionPasswordChange(){
-		$password = \Yii::$app->request->post('password');
-		$user = User::findOne(\Yii::$app->user->id);
-		if(!$user->validatePassword($password['old'])){
-			return 'Не верный старый пароль';
-		}
-		if(!$password['new']){
-			return 'Новый пароль не может быть пустым';
-		}
 
-		if($password['new']!=$password['new2']){
-			return 'Новый пароль и подтверждение должны совпадать';
+	public function actionPasswordUpdate()
+	{
+		$error = 0;
+		$model = Yii::$app->user->identity;
+		if ($model->load(Yii::$app->request->post()) ) {
+			//return $model->validatePassword($model->oldpassword);
+			if($model->validate(true,['oldpassword','password','password_retry']))
+			{
+				$model->setPassword($model->password);
+				$model->generateAuthKey();
+				if(!$model->save(true,['password_hash','auth_key'])){$error =$model->errors;	}
+
+			}else{
+				$error =$model->errors;
+			}
+
 		}
-		$user->setPassword($password['new']);
-		$user->save();
-		return 1;
+		return Json::encode(['error'=>$error]);
+
+	}
+
+	public function actionCardUpdate()
+	{
+		$error = 0;
+		$model = Yii::$app->user->identity;
+		if ($model->load(Yii::$app->request->post()) ) {
+			if(!$model->save(true,['first_name','last_name'])) $error =$model->errors;
+		}
+		return Json::encode(['error'=>$error]);
 	}
 
 	public function actionEmailChange(){

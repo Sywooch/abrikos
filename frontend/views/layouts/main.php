@@ -24,14 +24,14 @@ AppAsset::register($this);
 </head>
 <body>
 <?php $this->beginBody() ?>
-
-<div class="wrap">
+<?=$this->render('@app/views/layouts/facebook-init')?>
+<div class="wrap" id="global-wrap">
 	<?php
 	NavBar::begin([
 		'brandLabel' => Yii::$app->name,
 		'brandUrl' => Yii::$app->homeUrl,
 		'options' => [
-			'class' => 'navbar-inverse navbar-fixed-top',
+			'class' => 'navbar-default navbar-fixed-top',
 		],
 	]);
 	echo Nav::widget([
@@ -41,12 +41,15 @@ AppAsset::register($this);
 	NavBar::end();
 	?>
 
-	<div class="container">
+	<div class="container" id="request-<?=Yii::$app->controller->id?>-<?=Yii::$app->controller->action->id ?>">
 		<?= Breadcrumbs::widget([
 			'links' => isset($this->params['breadcrumbs']) ? $this->params['breadcrumbs'] : [],
 		]) ?>
 		<?= Alert::widget() ?>
 		<?= $content ?>
+		<div class="text-center">
+		<?=$this->render('facebook-comments')?>
+		</div>
 	</div>
 </div>
 

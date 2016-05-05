@@ -1,11 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: abrikos
- * Date: 11.04.16
- * Time: 18:21
- */
-
 namespace app\components;
 
 
@@ -21,6 +14,9 @@ class TopMenu extends Component
 			['label'=>'Сервисы', 'items'=>
 				[
 					['label' => 'Опросы', 'url' => ['/poll']],
+					['label' => 'Викторины', 'url' => ['/quiz']],
+					['label' => 'Стабильный календарь', 'url' => ['/calendar']],
+					['label' => 'IP инструменты', 'url' => ['/tools']],
 				]
 			],
 			['label'=>'Игры', 'items'=>
@@ -29,6 +25,7 @@ class TopMenu extends Component
 					['label' => 'Быки и коровы', 'url' => ['/cows']],
 				]
 			],
+			['label'=>'Помошь','url'=>'/site/contact']
 
 		];
 		if (Yii::$app->user->isGuest) {
@@ -36,13 +33,19 @@ class TopMenu extends Component
 			$items[] = ['label' => 'Вход', 'url' => "/site/login"];
 		} else {
 			$items[] = ['label' => 'Кабинет', 'url' => ['/user/cabinet']];
+			$items[] = '<li>'. Yii::$app->user->identity->card . '</li>';
 			$items[] = [
-				'label' => 'Выход (' . Yii::$app->user->identity->username . ')',
+				'label' => 'Выход',
 				'url' => ['/site/logout'],
 				'linkOptions' => ['data-method' => 'post']
 			];
 		}
 		self::$items = $items;
 		parent::init();
+	}
+
+	static public function addItems($new)
+	{
+		self::$items = array_merge($new,self::$items);
 	}
 }

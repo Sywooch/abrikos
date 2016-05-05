@@ -4,16 +4,16 @@ namespace frontend\modules\quiz;
 use yii\web\View;
 use yii\web\AssetBundle;
 
-class QuizAsset extends AssetBundle
+class QuizProcessAsset extends AssetBundle
 {
 	public $sourcePath = '@app/modules/quiz/assets';
 	public $baseUrl = '@web';
 	public $css = [
-		'css/quiz.css',
+		'css/quiz-process.css',
 	];
 	public $js = [
-		'js/quiz.js',
-		//'js/tmpl.min.js',
+		'js/quiz-process.js',
+		'js/tmpl.min.js',
 	];
 	public $jsOptions = ['position' => View::POS_HEAD];
 

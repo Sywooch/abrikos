@@ -7,13 +7,18 @@ use yii\bootstrap\Tabs;
 $this->title = 'Кабинет пользователя ' ;
 $this->params['breadcrumbs'][] = $this->title;
 ?>
+<h1><?=$this->title?></h1>
 <?php
 echo Tabs::widget([
 	'items' => [
 		[
 			'label' => 'Профиль',
-			'content' => $this->render('profile'),
+			'content' => $this->render('card'),
 			'active' => true
+		],
+		[
+			'label' => 'Пароль',
+			'content' => $this->render('password'),
 		],
 
         /*

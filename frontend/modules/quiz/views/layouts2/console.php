@@ -3,6 +3,7 @@
 /* @var $this \yii\web\View */
 /* @var $content string */
 
+use app\components\TopMenu;
 use yii\helpers\Html;
 use yii\bootstrap\Nav;
 use yii\bootstrap\NavBar;
@@ -24,7 +25,7 @@ AppAsset::register($this);
 </head>
 <body>
 <?php $this->beginBody() ?>
-
+<?=$this->render('@app/views/layouts/facebook-init')?>
 <div class="wrap">
 	<?php
 	NavBar::begin([
@@ -36,7 +37,15 @@ AppAsset::register($this);
 	]);
 	echo Nav::widget([
 		'options' => ['class' => 'navbar-nav navbar-right'],
-		'items' => \app\components\TopMenu::$items,
+		'items' => TopMenu::addItems([
+			['label'=>'Викторины','items'=>[
+				['label'=>'Начало', 'url'=>'/quiz'],
+				['label'=>'Мои викторины', 'url'=>'/quiz/list'],
+				['label'=>'Статистика', 'url'=>'/quiz/stat'],
+				['label'=>'Создать свою викторину', 'url'=>'/quiz/create','linkOptions'=>['data'=>['method'=>'post']]],
+				['label'=>'Восстановление доступа', 'url'=>'/quiz/restore'],
+			]]
+		]),
 	]);
 	NavBar::end();
 	?>
@@ -47,7 +56,19 @@ AppAsset::register($this);
 		]) ?>
 		<?= Alert::widget() ?>
 		<?= $content ?>
+		<?=$this->render('@app/views/layouts/facebook-comments')?>
 	</div>
+
+	<?php
+	NavBar::begin([
+		'id'=>'navbar-bottom',
+		'options' => [
+			'class' => 'navbar navbar-default navbar-fixed-bottom  collapse',
+		],
+	]);
+	echo '<div id="console-log" class="alert alert-danger"></div>';
+	NavBar::end();
+	?>
 </div>
 
 <footer class="footer">

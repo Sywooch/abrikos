@@ -2,7 +2,10 @@
 use yii\jui\DatePicker;
 \app\modules\calendar\CalendarAsset::register($this);
 ?>
-<script language='JavaScript' type='text/javascript' src='http://escudo.pro/recent.php'></script>
+<?= Yii::t('calendar', 'Select language');?>
+<a href="/calendar/language?l=ru" class="language <?=Yii::$app->request->cookies['language']?>-russian">Russian</a>
+<a href="/calendar/language?l=en" class="language <?=Yii::$app->request->cookies['language']?>-english">Englis</a>
+
 <h1><?=$this->title = Yii::t('calendar', 'Stable calendar Unix Epoch')?></h1>
 <div id="calendar-index">
 	<form id="form-converter">
@@ -66,8 +69,5 @@ use yii\jui\DatePicker;
 
 
 </div>
-<hr style="clear: both"/>
-<?= Yii::t('calendar', 'Select language');?>
-<a href="/calendar/language?l=ru" class="language <?=Yii::$app->request->cookies['language']?>-russian">Russian</a>
-<a href="/calendar/language?l=en" class="language <?=Yii::$app->request->cookies['language']?>-english">Englis</a>
+<hr class="clearfix"/>
 

@@ -37,23 +37,26 @@ class ContactForm extends Model
     public function attributeLabels()
     {
         return [
-            'verifyCode' => 'Verification Code',
+            'verifyCode' => 'Код подтверждения',
+            'name'=>'Ваше имя',
+            'email'=>'Ваш e-mail адрес',
+            'subject'=>'Тема сообщения',
+            'body'=>'Ваше сообщение',
         ];
     }
 
     /**
      * Sends an email to the specified email address using the information collected by this model.
      *
-     * @param  string  $email the target email address
      * @return boolean whether the email was sent
      */
-    public function sendEmail($email)
+    public function sendEmail()
     {
-        return Yii::$app->mailer->compose()
-            ->setTo($email)
-            ->setFrom([$this->email => $this->name])
-            ->setSubject($this->subject)
-            ->setTextBody($this->body)
-            ->send();
+	    return Yii::$app->mailer->compose()
+		    ->setFrom(['abrikoscron@gmail.com'=>$_SERVER['SERVER_NAME'] . ' Вопрос о помощи '])
+		    ->setTo([Yii::$app->params['adminEmail']])
+		    ->setSubject($this->subject)
+		    ->setTextBody('Вопрос от ' . $this->name . ':  ' . $this->body . ' ' . $this->email)
+		    ->send();
     }
 }

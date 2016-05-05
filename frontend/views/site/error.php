@@ -16,12 +16,11 @@ $this->title = $name;
     <div class="alert alert-danger">
         <?= nl2br(Html::encode($message)) ?>
     </div>
-
     <p>
-        The above error occurred while the Web server was processing your request.
+        Ошибка произошла во время исполнения Вашего запроса.
     </p>
     <p>
-        Please contact us if you think this is a server error. Thank you.
+        Вы можете <a href="/site/contact" target="_blank">сообщить об этой ошибке</a>
     </p>
 
 </div>

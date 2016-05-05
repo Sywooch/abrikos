@@ -21,9 +21,10 @@ return [
 				'<module:poll>/<action:.*>/<id:\d*>' => '<module>/default/<action>',
 				'<module:poll>/<id:\d*>' => '<module>/default/view',
 				'<module:poll>/<action:.*>' => '<module>/default/<action>',
+				'<module:quiz>/view/<id:\d+>/<tour:\d+>' => '<module>/default/view',
 				'<module:quiz>/<action:.*>/<id:\d*>' => '<module>/default/<action>',
-				'<module:quiz>/<id:\d*>' => '<module>/default/view',
 				'<module:quiz>/<action:.*>' => '<module>/default/<action>',
+
 
 				'<controller:\w+>/<view:\w+>/<id:\d+>' => '<controller>/<view>',
 				'<controller:\w+>/<id:\d+>' => '<controller>/view',

@@ -23,11 +23,12 @@ class CronController extends \yii\console\Controller
 
 	public function actionHourly()
 	{
-		Quiz::cron();
+		Quiz::hourly();
 	}
 
 	public function actionDaily()
 	{
+		Quiz::daily();
 	}
 
 	public function actionWeekly()

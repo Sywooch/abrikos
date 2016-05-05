@@ -30,6 +30,7 @@ class User extends ActiveRecord implements IdentityInterface
     const STATUS_DELETED = 0;
     const STATUS_ACTIVE = 10;
 
+	public $oldpassword, $password, $password_repeat;
     /**
      * @inheritdoc
      */
@@ -54,22 +55,45 @@ class User extends ActiveRecord implements IdentityInterface
     public function rules()
     {
         return [
-            [['first_name', 'last_name', 'photo'], 'string'],
+            [['first_name', 'last_name', 'photo', 'oldpassword','password_repeat'], 'string'],
             [['email'],'email'],
+	        ['password','compare'],
+	        ['password_repeat','string', 'length'=>[6]],
+	        ['oldpassword','validatePasswordRule'],
             ['status', 'default', 'value' => self::STATUS_ACTIVE],
             ['status', 'in', 'range' => [self::STATUS_ACTIVE, self::STATUS_DELETED]],
         ];
     }
 
+	public function validatePasswordRule($attribute)
+	{
+		if(! $this->validatePassword($this->$attribute)){
+			$this->addError($attribute,'Старый пароль указан не верно');
+		}
+	}
+
+
     public function getCard()
     {
+	    //return Html::img('/images/logo.png', ['class'=>'user-card-photo']);
         $ret = ''
-            .($this->photo ? $ret = Html::img($this->photo, ['class'=>'user-card-photo']) : '')
-            .($this->first_name ? ' '.$this->first_name.' ' : '')
-            .($this->last_name ?  $this->last_name . ' ' : '')
+            .($this->photo ? Html::img($this->photo, ['class'=>'user-card-photo']) : '')
+            .' <span id="card-user-first_name">'.($this->first_name ? $this->first_name : '').'</span> '
+	        .' <span id="card-user-last_name">'.($this->last_name ?  $this->last_name : '').'</span> '
             . (!$this->last_name && $this->first_name ? $this->username : '') ;
         return $ret;
     }
+
+	public function attributeLabels()
+	{
+		return [
+			'first_name'=>'Имя',
+			'last_name'=>'Фамилия',
+			'oldpassword'=>'Старый пароль',
+			'password'=>'Подтверждение пароля',
+			'password_repeat'=>'Новый пароль',
+		];
+	}
 
     /**
      * @inheritdoc
@@ -95,7 +119,9 @@ class User extends ActiveRecord implements IdentityInterface
      */
     public static function findByUsername($username)
     {
-        return static::findOne(['username' => $username, 'status' => self::STATUS_ACTIVE]);
+        $user = static::findOne(['username' => $username, 'status' => self::STATUS_ACTIVE]);
+	    if(!$user) $user = static::findOne(['email' => $username, 'status' => self::STATUS_ACTIVE]);
+	    return $user;
     }
 
     /**

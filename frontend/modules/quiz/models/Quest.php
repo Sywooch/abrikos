@@ -12,8 +12,10 @@ use Yii;
  * @property integer $quiz
  * @property integer $rate
  * @property integer $sort
- * @property QuizQuiz $quiz0
+ * @property Quiz $quiz0
  * @property string youtube
+ * @property integer multi
+ * @property string description
  */
 class Quest extends \yii\db\ActiveRecord
 {
@@ -32,8 +34,8 @@ class Quest extends \yii\db\ActiveRecord
     {
         return [
             [['name', 'quiz', 'rate'], 'required'],
-            [['name', 'youtube'], 'string'],
-            [['quiz', 'rate', 'sort'], 'integer'],
+            [['name', 'youtube', 'description'], 'string'],
+            [['quiz', 'rate', 'sort', 'multi'], 'integer'],
             [['quiz'], 'exist', 'skipOnError' => true, 'targetClass' => Quiz::className(), 'targetAttribute' => ['quiz' => 'id']],
         ];
     }
@@ -48,6 +50,7 @@ class Quest extends \yii\db\ActiveRecord
             'name' => 'Вопрос',
             'quiz' => 'Викторина',
             'rate' => 'Баллы',
+	        'description' => 'Комментарий к ответу'
         ];
     }
 
@@ -61,8 +64,19 @@ class Quest extends \yii\db\ActiveRecord
 
 	public function getAnswers()
 	{
-		return $this->hasMany(Answer::className(), ['quest' => 'id']);
+		return $this->hasMany(Answer::className(), ['quest' => 'id'])->orderBy('quiz_answer.id');
 	}
+
+	public function getAnswersRand()
+	{
+		return $this->hasMany(Answer::className(), ['quest' => 'id'])->orderBy('rand()');
+	}
+
+	public function getRightAnswers()
+	{
+		return $this->hasMany(Answer::className(), ['quest' => 'id'])->where(['correct'=>1]);
+	}
+
 
 	public function getImage()
 	{
@@ -72,5 +86,14 @@ class Quest extends \yii\db\ActiveRecord
 	public function getImagePath()
 	{
 		return Yii::getAlias('@app/web') . $this->image;
+	}
+
+	public function noAnswers()
+	{
+		$sum = 0;
+		foreach ($this->answers as $answer) {
+			$sum += $answer->correct;
+		}
+		if(!$sum) return $this; else return 0;
 	}
 }

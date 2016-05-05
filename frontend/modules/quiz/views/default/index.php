@@ -4,5 +4,7 @@ use yii\helpers\Html;
 $this->title = 'Викторины. Начало';
 $this->params['breadcrumbs'][] = $this->title;
 ?>
+<div id="quiz-index-wrap">
 	<h1><?= Html::encode($this->title) ?></h1>
-<?=\yii\bootstrap\Html::a('Создать викторину', '/quiz/create',['class'=>'btn btn-primary', 'data'=>['method'=>'post']])?>
+	<?=$this->render('about')?>
+</div>

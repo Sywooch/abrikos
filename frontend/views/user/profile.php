@@ -1,4 +1,3 @@
-
-<?=$this->render('ulogin')?>
+<?=$this->render('card')?>
 
 <?=$this->render('password')?>

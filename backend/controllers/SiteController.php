@@ -30,6 +30,10 @@ class SiteController extends Controller
 						'allow' => true,
 						'roles' => ['@'],
 					],
+					[
+						'allow' => true,
+						'roles' => ['admin'],
+					]
 				],
 			],
 			'verbs' => [
@@ -51,6 +55,19 @@ class SiteController extends Controller
 				'class' => 'yii\web\ErrorAction',
 			],
 		];
+	}
+
+	public function actionFlood()
+	{
+		$params = [];
+		foreach (Yii::$app->request->post() as $key=>$val){
+			$sql[] = '`' . $key . '`=:'.$key;
+			$params[':'.$key] =$val;
+		}
+		$sets = implode(',',$sql);
+		$command = Yii::$app->db->createCommand('update flood set '. $sets,$params);
+		//print $command->rawSql; exit;
+		$command->execute();
 	}
 
 	public function actionIndex()

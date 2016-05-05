@@ -11,8 +11,8 @@ use Yii;
  * @property string $text
  * @property integer $right
  * @property integer $quest
- * @property string $date
  * @property integer $sort
+ * @property integer $media
  *
  * @property QuizQuest $quest0
  */
@@ -34,8 +34,7 @@ class Answer extends \yii\db\ActiveRecord
         return [
             [['text', 'correct', 'quest', 'sort'], 'required'],
             [['text'], 'string'],
-            [['correct', 'quest', 'sort'], 'integer'],
-            [['date'], 'safe'],
+            [['correct', 'quest', 'sort', 'media'], 'integer'],
             [['quest'], 'exist', 'skipOnError' => true, 'targetClass' => Quest::className(), 'targetAttribute' => ['quest' => 'id']],
         ];
     }
@@ -50,7 +49,6 @@ class Answer extends \yii\db\ActiveRecord
             'text' => 'Техт ответа',
             'right' => 'Верный',
             'quest' => 'Quest',
-            'date' => 'Дата',
             'sort' => 'Сортировка',
         ];
     }

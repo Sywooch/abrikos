@@ -1,0 +1,1 @@
+<div class="fb-comments" data-href="<?=\yii\helpers\Url::canonical()?>" data-numposts="10"></div>

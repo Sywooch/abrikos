@@ -12,15 +12,18 @@ $this->params['breadcrumbs'][] = $this->title;
 	'dataProvider' => $dataProvider,
 	'columns' => [
 		'id',
-		'name',
+		[
+			'label'=>'Викторина',
+			'format' => 'raw',
+			'value'=>function ($data) {
+				return Html::a($data->name,'/quiz/update/'.$data->id);
+			},
+		],
 		'date',
 		[
 			'class' => 'yii\grid\ActionColumn',
 			'template' => '{view} {delete} ',
 		],
 	],
-	'rowOptions' => function ($model, $key, $index, $grid) {
-		return ['id' => "row-" . $model['id'], 'onclick' => 'document.location.href = "/quiz/update/"+this.getAttribute("data-key");', 'style'=>'cursor:pointer'];
-	},
 
 ]); ?>

@@ -1,3 +1,6 @@
+#update-container {
+  padding: 0 40px;
+}
 .quest-wrapper {
   margin: 5px;
   padding: 5px;
@@ -14,6 +17,7 @@
 }
 .quest-wrapper .quest-image .quest-image-object {
   max-height: 100%;
+  max-width: 100%;
 }
 .quest-wrapper .quest-inputs {
   padding: 1px;
@@ -27,73 +31,68 @@
   border: 1px solid black;
   box-shadow: 0 0 2em gray;
 }
-.quest-wrapper .answer-section .answer-wrapper {
-  padding: 2px;
-  margin: 5px;
-  float: left;
-  width: 45%;
-  position: relative;
+.quest-wrapper .answer-help {
   font-size: .8em;
 }
-.quest-wrapper .answer-section .answer-wrapper .answer-tools {
-  position: absolute;
-  right: 0;
-  background-color: wheat;
+.quest-wrapper .answer-help span {
+  color: #0000aa;
 }
-.quest-wrapper .answer-section .answer-wrapper textarea {
+.quest-wrapper .answer-section {
+  font-size: .8em;
+}
+.quest-wrapper .answer-section .answer-correct {
+  box-shadow: 0 0 5px red;
+}
+.quest-wrapper .answer-section .answer-wrapper {
+  padding: 2px;
+  margin: 2px;
+  float: left;
+}
+.quest-wrapper .answer-section .answer-wrapper .answer-inputs {
+  width: 100px;
+  height: 100px;
+  position: relative;
+}
+.quest-wrapper .answer-section .answer-wrapper .answer-inputs textarea {
   width: 100%;
+  height: 100%;
   border: 2px dashed silver;
 }
-.quest-wrapper .answer-section .answer-wrapper textarea:focus {
+.quest-wrapper .answer-section .answer-wrapper .answer-inputs textarea:focus {
   color: #0000aa;
   border-style: solid;
   border-color: grey;
   box-shadow: 0 0 2em gray;
 }
+.quest-wrapper .answer-section .answer-wrapper .answer-inputs img.answer-image-object {
+  max-width: 100%;
+  max-height: 100%;
+}
 #add-media-dialog progress {
   width: 100%;
 }
-#add-media-dialog .upload-buttons-wrapper div {
-  padding: 10px;
+#add-media-dialog .upload-buttons-wrapper {
   text-align: center;
   background-color: silver;
-  height: 100px;
+  padding: 10px;
 }
-#add-media-dialog .upload-buttons-wrapper div span {
-  font-size: 5em;
+#quest-right {
+  background-color: silver;
+}
+#quest-right .option-block {
+  margin: 2px 0;
+  padding: 5px;
+  border-bottom: 5px solid whitesmoke;
+}
+#quest-right .option-block h3 {
+  margin: 0 0 5px;
+}
+#quest-right .option-block img.quiz-cover-image {
+  max-width: 200px;
   cursor: pointer;
-  color: #1b6d85;
 }
-.spacer {
-  clear: both;
-}
-.bg-color-1 {
-  background-color: #0000ff;
-}
-.bg-color-2 {
-  background-color: #8a2be2;
-}
-.bg-color-3 {
-  background-color: #a52a2a;
-}
-.bg-color-4 {
-  background-color: #deb887;
-}
-.bg-color-5 {
-  background-color: #5f9ea0;
-}
-.bg-color-6 {
-  background-color: #7fff00;
-}
-.bg-color-7 {
-  background-color: #d2691e;
-}
-.bg-color-8 {
-  background-color: #ff7f50;
-}
-.bg-color-9 {
-  background-color: #6495ed;
-}
-.bg-color-0 {
-  background-color: #b8860b;
+#quest-right .option-block .options-quest-wrapper {
+  cursor: pointer;
+  margin: 1px;
+  padding: 1px;
 }

@@ -1,5 +1,5 @@
 <div class="well description">
-<?php if(Yii::$app->language == 'ru'):?>
+<?php if(Yii::$app->language == 'ru_RU'):?>
 <p style="font-size: 1.2em">
 13 месяцев одинакового размера <br/>
 (28 дней * 13 месяцев = 364, + 1 = 365)<br/>

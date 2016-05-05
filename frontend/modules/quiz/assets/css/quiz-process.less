@@ -1,0 +1,108 @@
+.wrap{
+  #top-nav{
+	background-color: wheat;
+	position: fixed;
+	width: 100%;
+	z-index: 1023;
+	#social-share{
+	  float: right;
+	  display: inline;
+	}
+  }
+}
+
+.view-container{
+  padding: 0 40px;
+}
+
+.quest-wrapper {
+  margin-top: 10px;
+  .quest-image-wrapper{
+	text-align: center;
+  }
+  .quest-image{
+	max-height: 400px;
+  }
+  .quest-name{
+	font-weight: bolder;
+	background-color: blue;
+	color:whitesmoke;
+	margin: 0;
+	padding: 10px;
+  }
+  .answer-section {
+	label.answer-wrong{
+	  opacity: .2;
+	  background-color: grey;
+	  display: none;
+	}
+	label.answer-correct{
+	  //border: 1px solid yellow;
+	  box-shadow: 0 0 5px green;
+	  margin: 10px;
+	}
+
+	label {
+	  @maxHeight:200px;
+	  @maxWidth:200px;
+	  float: left;
+	  div.img-thumb {
+		height: @maxHeight;
+		width: @maxHeight;
+		img{
+		 max-height: 100%;
+		 max-width: 100%;
+		}
+	  }
+	  div.txt-thumb{
+		//border: 2px dashed silver;
+		padding: 5px;
+		overflow: hidden;
+		width: @maxHeight;
+		max-height: @maxHeight;
+	  }
+	  input { /* HIDE RADIO */
+		visibility: hidden; /* Makes input not-clickable */
+		position: absolute; /* Remove input from document flow */
+	  }
+	  input + div.answer-data-wrapper { /* IMAGE STYLES */
+		padding: 10px;
+		cursor: pointer;
+		border: 2px solid transparent;
+	  }
+	  input:checked + div.answer-data-wrapper { /* (RADIO CHECKED) IMAGE STYLES */
+		//opacity: .5;
+		border: 2px solid #f00;
+	  }
+	}
+  }
+}
+
+#done-name-desc {
+  margin-bottom: 10px;
+  #done-counter {
+	font-size: 2em;
+	border-radius: 5px;
+	padding: 15px;
+	font-weight: bolder;
+
+	//box-shadow: 2px 2px 5px black;
+  }
+  #done-quiz-cover{
+	float: right;
+	//position: absolute;
+	top:-5px;
+	max-height: 100px;
+	max-width: 100px;
+	right: 10px;
+	height: 100%;
+	border-radius: 5px;
+	box-shadow: 2px 2px 5px black;
+  }
+}
+
+  .answer-section{
+	padding: 20px;
+
+
+}

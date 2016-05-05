@@ -16,13 +16,15 @@ use yii\web\View;
  */
 class AppAsset extends AssetBundle
 {
-    public $basePath = '@webroot';
+    public $sourcePath = '@app/assets';
     public $baseUrl = '@web';
     public $css = [
         'css/site.css',
+	    'css/custom.css'
     ];
     public $jsOptions = ['position'=>View::POS_HEAD];
     public $js = [
+        'js/site.js'
     ];
     public $depends = [
         'yii\web\YiiAsset',
