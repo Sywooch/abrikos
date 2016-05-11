@@ -1,0 +1,42 @@
+#images-table .image-cell {
+  height: 180px;
+}
+#images-table .image-choosen-wrap {
+  height: 100%;
+  position: relative;
+}
+#images-table .image-choosen-wrap .thumbnail {
+  height: 100%;
+}
+#images-table .image-choosen-wrap .thumbnail .image-choosen {
+  max-height: 100%;
+  max-width: 100%;
+}
+#images-table .image-choosen-wrap div.image-choosen-tools {
+  background-color: white;
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  border-radius: 2px;
+  box-shadow: 0 0 2px silver;
+}
+#images-removed {
+  opacity: 0.4;
+}
+#quest-image {
+  max-height: 170px;
+  max-width: 200px;
+}
+.tour-view .pointer {
+  cursor: pointer;
+}
+.tour-view .tour-view-image-container {
+  display: inline-block;
+  width: 70px;
+  height: 50px;
+}
+.tour-view .tour-view-image-container img {
+  cursor: pointer;
+  max-width: 100%;
+  max-height: 100%;
+}

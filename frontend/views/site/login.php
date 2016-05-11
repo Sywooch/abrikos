@@ -29,7 +29,7 @@ $this->params['breadcrumbs'][] = $this->title;
 	$fb = \frontend\controllers\FbController::fbinit();
 	$helper = $fb->getRedirectLoginHelper();
 	$permissions = ['email', 'public_profile','user_about_me']; // optional
-	$loginUrl = $helper->getLoginUrl('http://'.$_SERVER['SERVER_NAME'].'/fb/callback', $permissions);
+	$loginUrl = $helper->getLoginUrl('https://'.$_SERVER['SERVER_NAME'].'/fb/callback', $permissions);
 
 	echo '<a href="' . htmlspecialchars($loginUrl) . '" title="Войти с помощью  Facebook"><img src="/images/fb.png" alt="facebook login" /></a>';
 

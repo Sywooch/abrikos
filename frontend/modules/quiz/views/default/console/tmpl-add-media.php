@@ -4,7 +4,7 @@
 			<div class="modal-content">
 				<div class="modal-header">
 					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-					<h4 class="modal-title" id="mediaModalLabel">Добавить фото/видео</h4>
+					<h4 class="modal-title" id="mediaModalLabel">Добавить фото</h4>
 				</div>
 				<div class="modal-body">
 					<input style="display: none"  id="input-file" type="file" onchange="doUpload(this, 'disk', {%=o.id%}, '{%=o.object%}')">

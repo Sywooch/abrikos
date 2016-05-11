@@ -149,7 +149,7 @@ class DefaultController extends Controller
 			}
 			$mailData = new \stdClass();
 			if($quiz->send_results && $mailData->email = $quiz->findEmail()) {
-				$link = 'http://' . $_SERVER['SERVER_NAME'] . '/quiz/console-result?round=' . $round;
+				$link = 'https://' . $_SERVER['SERVER_NAME'] . '/quiz/console-result?round=' . $round;
 				$mailData->subject = 'Ответы на викторину #' . $quiz->id . '. ';
 				$mailData->body = 'Викторина "' . $quiz->name . '". Получены ответы. Для просмотра перейдите по ссылке ' . $link;
 				$this->mailToUser($mailData);
@@ -196,11 +196,11 @@ class DefaultController extends Controller
 		Yii::$app->view->registerMetaTag(['property'=>'og:title', 'content'=>$quiz->name, 'id'=>'og-title'], 'og-title');
 		Yii::$app->view->registerMetaTag(['property'=>'og:description', 'content'=>'Викторина. '.$quiz->description], 'og-desc');
 
-		Yii::$app->view->registerMetaTag(['property' => 'og:image', 'content' => 'http://'.$_SERVER['SERVER_NAME'].$quiz->image],'og-image');
-		Yii::$app->view->registerMetaTag(['property' => 'og:image:secure_url', 'content' => 'http://'.$_SERVER['SERVER_NAME'].$quiz->image],'og-imagesec');
+		Yii::$app->view->registerMetaTag(['property' => 'og:image', 'content' => 'https://'.$_SERVER['SERVER_NAME'].$quiz->image],'og-image');
+		Yii::$app->view->registerMetaTag(['property' => 'og:image:secure_url', 'content' => 'https://'.$_SERVER['SERVER_NAME'].$quiz->image],'og-imagesec');
 		Yii::$app->view->registerMetaTag(['property' => 'og:image:width', 'content' => 400],'og-image-width');
 		Yii::$app->view->registerMetaTag(['property' => 'og:image:height', 'content' => 200],'og-image-height');
-		Yii::$app->view->registerLinkTag(['rel' => 'image_src', 'href' => 'http://'.$_SERVER['SERVER_NAME'].$quiz->image],'og-image-rel');
+		Yii::$app->view->registerLinkTag(['rel' => 'image_src', 'href' => 'https://'.$_SERVER['SERVER_NAME'].$quiz->image],'og-image-rel');
 
 		return $this->render('process/view',['model'=>$quiz]);
 
@@ -460,6 +460,7 @@ class DefaultController extends Controller
 	public function actionUpdate($id,$uid='')
 	{
 		$quiz = Quiz::findOne($id);
+		if(!$quiz) throw new NotFoundHttpException('Не найден');
 		if($quiz->sessionId == $uid && $uid){
 			$session = new Session();
 			$session['user']=$quiz->sessionId;
@@ -554,7 +555,7 @@ class DefaultController extends Controller
 		}
 		$response = new \stdClass();
 		$response->email = $quiz->email;
-		$link = 'http://' . $_SERVER['SERVER_NAME'] . '/quiz/restore-finish?uid=' . $quiz->sessionId;
+		$link = 'https://' . $_SERVER['SERVER_NAME'] . '/quiz/restore-finish?uid=' . $quiz->sessionId;
 		$response->subject = 'Запрос восстановлени доступа к Викторине. ';
 		$response->body = 'Ваш адрес указан при создании викторины "'.$quiz->name.'". Было инициировано восстановление доступа к викторине. Если нет уверенности, что это произошло по Вашему запросу, то можете не обращать внимание на это сообщение. Для продолжения восстановления викториныпройдите по ссылке '.$link;
 		$this->mailToUser($response);
@@ -570,7 +571,7 @@ class DefaultController extends Controller
 		$quiz->save(true,['sessionId']);
 		$response = new \stdClass();
 		$response->email = $quiz->email;
-		$link = 'http://' . $_SERVER['SERVER_NAME'] . '/quiz/update/'.$quiz->id.'?uid=' . $quiz->sessionId;
+		$link = 'https://' . $_SERVER['SERVER_NAME'] . '/quiz/update/'.$quiz->id.'?uid=' . $quiz->sessionId;
 		$response->subject = 'Викторина #'.$quiz->id.' восстановлена. ';
 		$response->body = 'Доступ к викторине "'.$quiz->name . '" восстановлен. Перейдите по ссылке '.$link;
 		$this->mailToUser($response);

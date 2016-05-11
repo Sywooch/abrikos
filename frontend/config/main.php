@@ -68,8 +68,11 @@ return [
 		'quiz' => [
 			'class' => 'frontend\modules\quiz\Quiz',
 		],
-		'crea' => [
-			'class' => 'frontend\modules\crea\Crea',
+		'reco' => [
+			'class' => 'frontend\modules\reco\Reco',
+		],
+		'graph' => [
+			'class' => 'frontend\modules\graph\GraphModule',
 		],
 	],
 

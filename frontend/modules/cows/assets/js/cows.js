@@ -1,5 +1,5 @@
 function start(){
-	$.post('/cowsGame/start',{'playerName':$('#playerName').val()},function(){
+	$.post('/cows/start',{'playerName':$('#playerName').val()},function(){
 		$('#gameForm').show();
 		$('#gameContainer').removeClass('hide');
 		$('#gameResult').html('');
@@ -10,7 +10,7 @@ function start(){
 
 function testNumber(){
 	$.ajax({
-		url:'/cowsGame/turn',
+		url:'/cows/turn',
 		data:$('#gameForm').serialize(),
 		type:'post',
 		dataType:'json',
@@ -22,7 +22,6 @@ function testNumber(){
 			}else{
 				$('#startButton').show();
 				$('#gameForm').hide();
-				drawTopTable();
 				$('#gameResults').append('<tr class="counting"><td></td><td>'+json.test+'</td><td colspan="2" style="color:red">Вы угадали число!</td></tr>');
 			}
 			$('#error').html('');

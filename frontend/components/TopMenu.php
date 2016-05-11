@@ -25,7 +25,7 @@ class TopMenu extends Component
 					['label' => 'Быки и коровы', 'url' => ['/cows']],
 				]
 			],
-			['label'=>'Помошь','url'=>'/site/contact']
+			['label'=>'Помощь','url'=>'javascript:void(0)', 'options'=>['onclick'=>'helpShow("help")']]
 
 		];
 		if (Yii::$app->user->isGuest) {

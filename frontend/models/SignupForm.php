@@ -20,6 +20,7 @@ class SignupForm extends Model
     public function rules()
     {
         return [
+	        
             ['username', 'filter', 'filter' => 'trim'],
             ['username', 'required'],
             ['username', 'unique', 'targetClass' => '\common\models\User', 'message' => 'Этот логин уже занят.'],

@@ -140,7 +140,7 @@ class Quiz extends \yii\db\ActiveRecord
 
 	public function getLink()
 	{
-		return 'http://www.abrikos.su/quiz/view/' . $this->id . '/' . $this->tour;
+		return 'https://www.abrikos.su/quiz/view/' . $this->id . '/' . $this->tour;
 	}
 
 	public function getRating()

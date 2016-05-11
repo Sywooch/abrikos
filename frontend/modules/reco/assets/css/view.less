@@ -1,0 +1,45 @@
+#images-wrap{
+  img{
+	max-width: 230px;
+	max-height: 170px;
+  }
+}
+#answer-wrap {
+  @height: 40px;
+  .letter-container {
+	float: left;
+	margin: 1px;
+	width: @height;
+	height: @height;
+	border: 1px solid silver;
+	padding: 1px;
+	position: relative;
+	span {
+	  padding: 5px;
+	  display: block;
+	  margin: auto;
+	  width: @height - 4px;
+	  height: @height - 4px;
+	  text-align: center;
+	  font-size: 1.2em;
+	  font-weight: bold;
+	}
+  }
+
+  #answer-container {
+	margin: 10px 0;
+	.right-letters-container{
+	  cursor: pointer;
+	  background-color: #0f0f0f;
+	  span{
+		background-color: #0f0f0f;
+		border-color: black;
+	  }
+	}
+  }
+
+  #letters-container {
+	margin: 10px 0;
+  }
+
+}

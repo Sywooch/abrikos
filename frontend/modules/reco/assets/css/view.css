@@ -1,0 +1,37 @@
+#images-wrap img {
+  max-width: 230px;
+  max-height: 170px;
+}
+#answer-wrap .letter-container {
+  float: left;
+  margin: 1px;
+  width: 40px;
+  height: 40px;
+  border: 1px solid silver;
+  padding: 1px;
+  position: relative;
+}
+#answer-wrap .letter-container span {
+  padding: 5px;
+  display: block;
+  margin: auto;
+  width: 36px;
+  height: 36px;
+  text-align: center;
+  font-size: 1.2em;
+  font-weight: bold;
+}
+#answer-wrap #answer-container {
+  margin: 10px 0;
+}
+#answer-wrap #answer-container .right-letters-container {
+  cursor: pointer;
+  background-color: #0f0f0f;
+}
+#answer-wrap #answer-container .right-letters-container span {
+  background-color: #0f0f0f;
+  border-color: black;
+}
+#answer-wrap #letters-container {
+  margin: 10px 0;
+}

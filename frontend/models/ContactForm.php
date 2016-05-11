@@ -14,7 +14,7 @@ class ContactForm extends Model
     public $email;
     public $subject;
     public $body;
-    public $verifyCode;
+    public $verifycode;
 
     /**
      * @inheritdoc
@@ -27,7 +27,7 @@ class ContactForm extends Model
             // email has to be a valid email address
             ['email', 'email'],
             // verifyCode needs to be entered correctly
-            ['verifyCode', 'captcha'],
+            ['verifycode', 'captcha'],
         ];
     }
 
@@ -37,7 +37,7 @@ class ContactForm extends Model
     public function attributeLabels()
     {
         return [
-            'verifyCode' => 'Код подтверждения',
+            'verifycode' => 'Код подтверждения',
             'name'=>'Ваше имя',
             'email'=>'Ваш e-mail адрес',
             'subject'=>'Тема сообщения',

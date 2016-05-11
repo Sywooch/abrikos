@@ -57,13 +57,7 @@ class DefaultController extends Controller
 		$diff = array_diff($arr, $number);
 		$cows = 4-count($diff)-$bulls;
 		if($bulls==4 && $mysess['start']>0){
-			$cows = new \common\models\Cows;
-			$cows->time = time() - $mysess['start'];
-			$cows->player = $mysess['playerName'];
-			$cows->user = \Yii::$app->user->id*1;
-			$cows->steps = $counter;
-			$cows->rate = $counter /$cows->time;
-			$cows->save();
+			//TODO record winner
 		}
 		return \yii\helpers\Json::encode(['bulls'=>$bulls, 'cows'=>$cows, 'test'=>$test]);
 	}

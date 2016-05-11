@@ -1,11 +1,11 @@
 <?php
 
-namespace frontend\modules\crea\controllers;
+namespace frontend\modules\graph\controllers;
 
 use yii\web\Controller;
 
 /**
- * Default controller for the `crea` module
+ * Default controller for the `graph` module
  */
 class DefaultController extends Controller
 {

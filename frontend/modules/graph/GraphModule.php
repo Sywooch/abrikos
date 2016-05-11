@@ -1,16 +1,16 @@
 <?php
 
-namespace frontend\modules\crea;
+namespace frontend\modules\graph;
 
 /**
- * crea module definition class
+ * graph module definition class
  */
-class Crea extends \yii\base\Module
+class GraphModule extends \yii\base\Module
 {
     /**
      * @inheritdoc
      */
-    public $controllerNamespace = 'frontend\modules\crea\controllers';
+    public $controllerNamespace = 'frontend\modules\graph\controllers';
 
     /**
      * @inheritdoc

@@ -12,6 +12,7 @@ use frontend\models\SignupForm;
 use frontend\models\ContactForm;
 use yii\base\InvalidParamException;
 use yii\helpers\Json;
+use yii\helpers\VarDumper;
 use yii\web\BadRequestHttpException;
 use yii\web\Controller;
 use yii\filters\VerbFilter;
@@ -51,6 +52,7 @@ class SiteController extends Controller
 				'class' => VerbFilter::className(),
 				'actions' => [
 					'logout' => ['post'],
+					'help-post' =>['post'],
 				],
 			],
 		];
@@ -122,22 +124,42 @@ class SiteController extends Controller
 	 *
 	 * @return mixed
 	 */
-	public function actionContact()
+	public function actionHelpPost()
 	{
 		$model = new ContactForm();
 		if ($model->load(Yii::$app->request->post()) && $model->validate()) {
 			if ($model->sendEmail()) {
-				Yii::$app->session->setFlash('success', 'Спасибо за Ваше сообщение. Мы свяжемся с Вами по возможности.');
+				$ret = ['status'=>'success', 'message'=>'Спасибо за Ваше сообщение. Мы свяжемся с Вами по возможности.'];
 			} else {
-				Yii::$app->session->setFlash('error', 'Ошибка отправки сообщения.');
+				$ret = ['status'=>'error', 'message'=>'Ошибка отправки сообщения.'];
 			}
-
-			return $this->refresh();
-		} else {
-			return $this->render('contact', [
-				'model' => $model,
-			]);
+		}else{
+			$ret =['status'=>'error', 'errors'=>$model->errors] ;
 		}
+		return Json::encode($ret);
+	}
+
+	public function actionHelpShow()
+	{
+		$type =Yii::$app->request->post('type');
+		$data =Yii::$app->request->post('data');
+		$model = new ContactForm();
+		switch ($type){
+			case 'help':
+				$model->subject = 'Запрос помощи';
+				break;
+			case 'abuse':
+				$model->subject = 'Жалоба';
+				break;
+		}
+		$model->body = "\n\n" . Yii::$app->request->referrer . (isset($data) ? "\n\n Дополнительная информация:\n".VarDumper::export($data) : '');
+		if(!Yii::$app->user->isGuest) {
+			$model->email = Yii::$app->user->identity->email;
+			$model->name = Yii::$app->user->identity->first_name . ' ' . Yii::$app->user->identity->last_name;
+		}
+		return $this->render('help', [
+			'model' => $model,
+		]);
 	}
 
 	/**
@@ -310,5 +332,4 @@ class SiteController extends Controller
 		]);
 	}
 
-	
 }

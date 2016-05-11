@@ -27,21 +27,15 @@ $this->params['breadcrumbs'][] = $this->title;
         </div>
     </div>
 </div>
+<div>
 Зарегистрируйтесь с помощью социальных сетей и вам не понадобится придумывать и запоминать пароль:
-<script src="//ulogin.ru/js/ulogin.js"></script>
-<div id="uLogin_10207705" data-uloginid="10207705"  data-ulogin="display=panel;fields=first_name,last_name,email,nickname,photo;lang=ru;providers=facebook,google,vkontakte,yandex,twitter,mailru;hidden=odnoklassniki,livejournal,openid,lastfm,linkedin,liveid,soundcloud,steam,flickr,uid,youtube,webmoney,foursquare,tumblr,googleplus,dudu,vimeo,instagram,wargaming;callback_hidden=uloginDo"></div>
+</div>
+<?php
+$fb = \frontend\controllers\FbController::fbinit();
+$helper = $fb->getRedirectLoginHelper();
+$permissions = ['email', 'public_profile','user_about_me']; // optional
+$loginUrl = $helper->getLoginUrl('https://'.$_SERVER['SERVER_NAME'].'/fb/callback', $permissions);
 
-<script>
+echo '<a href="' . htmlspecialchars($loginUrl) . '" title="Войти с помощью  Facebook"><img src="/images/fb.png" alt="facebook login" /></a>';
 
-	function uloginDo(){
-		$.ajax({
-			url:'/site/ulogin',
-			data:{token:arguments[0],_csrf:$('meta[name="csrf-token"]').attr("content")},
-			type:'post',
-			dataType:'json',
-			success:function(json){
-				document.location.href=json.redirect;
-			}
-		})
-	}
-</script>
+?>

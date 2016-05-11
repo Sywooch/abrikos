@@ -24,9 +24,16 @@ return [
 				'<module:quiz>/view/<id:\d+>/<tour:\d+>' => '<module>/default/view',
 				'<module:quiz>/<action:.*>/<id:\d*>' => '<module>/default/<action>',
 				'<module:quiz>/<action:.*>' => '<module>/default/<action>',
-				'<module:crea>/view/<id:\d+>/<tour:\d+>' => '<module>/default/view',
-				'<module:crea>/<action:.*>/<id:\d*>' => '<module>/default/<action>',
-				'<module:crea>/<action:.*>' => '<module>/default/<action>',
+				'<module:reco>/<id:\d+>' => '<module>/default/view',
+				'<module:reco>/<action:.*>/<id:\d*>' => '<module>/default/<action>',
+				'<module:reco>/<controller:.*>/<action:.*>' => '<module>/<controller>/<action>',
+				'<module:reco>/<action:.*>' => '<module>/default/<action>',
+
+				'<module:graph>/<id:\d+>' => '<module>/default/view',
+				'<module:graph>/<action:.*>/<id:\d*>' => '<module>/default/<action>',
+				'<module:graph>/<controller:.*>/<action:.*>' => '<module>/<controller>/<action>',
+				'<module:graph>/<action:.*>' => '<module>/default/<action>',
+
 
 
 				'<controller:\w+>/<view:\w+>/<id:\d+>' => '<controller>/<view>',
